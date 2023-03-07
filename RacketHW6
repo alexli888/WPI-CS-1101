@@ -1,0 +1,80 @@
+CS1101 Exercise 6
+
+; Exercises 6 ; Learning Objectives: ; - Using Abstract (Higher Order) Functions ; - Defining Abstract (Higher Order) Functions ; - Defining Accumulator Style functions ; Graded: ; constants: 0TO999, GROWING-STRINGS ; functions: map-tt, flatten-only-tt, keygen ; extra credit: how-many-viruses
+
+(define WPI_ID "ajli")
+
+; ; Problem 1 - 10 points ; ; Uncomment the following constants ; ; 0TO9999 and GROWING-STRINGS ; ; and use some or all of the functions: ; ; - build-list ; ; - identity ; ; - map ; ; - filter ; ; to populate the constants according to their specifications ; ; You may create any helper functions you like to make these strings.
+
+; 0TO9999: a ListOfNumber that contains the numbers 0, 1, ..., 9999 (define 0TO9999 (build-list 10000 identity))
+
+; GROWING-STRINGS: a ListOfString such that: ; - the 0th string is "" ; - the 1th string has one character ; - the 2th string has two characters ; ... ; - the 999th string has 999 characters ; and the list has 1000 strings in it. (define GROWING-STRINGS (build-list 1000 (lambda (n) (list->string (build-list n (lambda (i) #\a))))))
+
+; ; ; Use the data definition of a (TTreeOf X) ; ; to answer problems 2 and 3
+
+(define-struct tnode (data one two three)) ; a (TTreeOf X) is one of: ; - #false ; - (make-tnode X (TTreeOf X) (TTreeOf X) (TTreeOf X)) ; where X is any type ; interp ; - data is the data of this node ; - one, two, and three are the subtrees ; - #false is a leaf
+
+; Examples (define LEAF #false) (define 4TREE (make-tnode 1 (make-tnode 2 LEAF LEAF LEAF) (make-tnode 3 LEAF LEAF LEAF) (make-tnode 4 LEAF LEAF LEAF)))
+
+; Template: ; ; tt-fcn : (TTreeOf X) -> ... ; (define (tt-fcn a-tt) ; (cond ; [(false? a-tt) ...] ; [(tnode? a-tt) ; (... ; (x-fcn (tnode-data a-tt)) ; (tt-fcn (tnode-one a-tt)) ; (tt-fcn (tnode-two a-tt)) ; (tt-fcn (tnode-three a-tt)))]))
+
+; ; Problem 2 - 10 points ; ; Given the data definition of a TTreeOf X ; ; implement a function map-tt
+
+;; map-tt : (X -> Y) (TTreeOf X) -> (TTreeOf Y) ;; consumes a data transformation function and a trinary tree ;; produces a trinary tree with each data element transformed ;; but the structure/shape of the tree is the same
+
+;; stub - comment out when you move on to step 4 ; but your implementation should match this ; signature exactly ;(define (map-tt f a-tt) LEAF)
+
+; YOU DO: Steps 2 -> 5
+
+; Step 2 Tests (check-expect (map-tt add1 LEAF) #false)
+
+(check-expect (map-tt add1 (make-tnode 1 (make-tnode 2 LEAF LEAF LEAF) (make-tnode 3 LEAF LEAF LEAF) (make-tnode 4 LEAF LEAF LEAF))) (make-tnode 2 (make-tnode 3 #false #false #false) (make-tnode 4 #false #false #false) (make-tnode 5 #false #false #false)))
+
+(check-expect (map-tt string-length (make-tnode "hello" (make-tnode "big" LEAF LEAF LEAF) (make-tnode "balls" LEAF LEAF LEAF) (make-tnode "test" LEAF LEAF LEAF))) (make-tnode 5 (make-tnode 3 #false #false #false) (make-tnode 5 #false #false #false) (make-tnode 4 #false #false #false)))
+
+; STep 4 Function (define (map-tt f a-tt) (cond [(false? a-tt) #false] [(tnode? a-tt) (make-tnode (f (tnode-data a-tt)) (map-tt f (tnode-one a-tt)) (map-tt f (tnode-two a-tt)) (map-tt f (tnode-three a-tt)))]))
+
+; ; Problem 3 - 10 points ; ; Given the data definition of a TTreeOf X ; ; implement a funcction flatten-only-tt
+
+;; flatten-only-tt : (X -> Boolean) (TTreeOf X) -> ListOf X ;; consumes a trinary tree of data and a predicate ;; produces a list of only the data that passes the predicate
+
+;; stub - comment out when you move on to step 4 ; but your implementation should match this ; signature exactly ;(define (flatten-only-tt p? a-tt) empty)
+
+; YOU DO: Steps 2 -> 5
+
+;STep 2 Tests (check-expect (flatten-only-tt (lambda (x) (even? x)) LEAF) empty) (check-expect (flatten-only-tt (lambda (x) (even? x)) 4TREE) '(2 4)) (check-expect (flatten-only-tt (lambda (x) (odd? x)) 4TREE) '(3 1))
+
+; STep 4 Function Body (define (flatten-only-tt p? a-tt) (cond [(false? a-tt) empty] [(tnode? a-tt) (append (flatten-only-tt p? (tnode-one a-tt)) (flatten-only-tt p? (tnode-two a-tt)) (flatten-only-tt p? (tnode-three a-tt)) (if (p? (tnode-data a-tt)) (list (tnode-data a-tt)) empty))]))
+
+; ; Problem 4; Accumulator Style Recursion ; ; use accumulator style recursion to ; ; implement the function: keygen ; ; You may use any higher-order functions you like ; ; The reference solution uses: ; ; - build-list to make a list of n 0s as an initial password candidate ; ; - foldl to reduce a list of numbers into a string ; ; ; Hint: You may want to look at the help-desk for string functions you can use ; ; Specifically, int->string might help ; ; You can see which decimal integers map to which letters here: https://www.asciitable.com/ ; ; 97 is "a" and 122 is "z" ; ; ; Suggested approach: ; ; make an accumulator to represent the current password as a list of numbers ; ; make helper functions to "increment" the password by one, and count down a counting acc by 1 ; ; when your function reaches 0 on the counting acc, return the string version of the current password ; ; ; We will test your code for correctness and using the time function as solutions not using accumulator-style ; ; recursion tend to be slower
+
+;; Did Problem 5 Extra Credit Instead of Problem 4
+
+; ; Extra Credit - 10 points ; ; Accumulator style recursion ; ; You are a cyber-park ranger that has just been hired to do data science ; ; on a VR wilderness preserve. ; ; You inherit the following legacy function, how-many-viruses ; ; from your predecessor who mysteriously vanished when ; ; a hard reboot happened. ; ; how-many-viruses estimates ; ; the population of virtual parasites that leach off ; ; unsuspecting host AI that wander around in this preserve. ; ; ; write a new function, how-many-viruses-fast ; ; that behaves the same as how-many-viruses ; ; (that is, they produce the same output given the same input) ; ; but uses accumulator-style recursion ; ; to memoize previously computed answers (and thus speed up computation) ; ; ; How you will be graded: ; ; Your code will be timed relative to the reference solution code on the same input ; ; we will use values that start to slow down on how-many-viruses
+
+; INHERITED CODE ; how-many-viruses : Natural Natural -> Number ; consumes the number of viruses in the last population ; and the number of hosts in the last population ; produces the number of viruses in the current population
+
+(define (how-many-viruses v-prev h-prev) (cond [(= 0 v-prev) 0] [(= 1 v-prev) (max (/ h-prev 100) 1)] [(= 2 v-prev) (max (/ h-prev 50) 2)] [else (+ (how-many-viruses (- v-prev 1) h-prev) (how-many-viruses (- v-prev 2) h-prev) (how-many-viruses (- v-prev 3) h-prev)) ]))
+
+; Tests with low populations (check-expect (how-many-viruses 1 10) 1) (check-expect (how-many-viruses 2 10) 2) (check-expect (how-many-viruses 3 10) 3) (check-expect (how-many-viruses 4 10) 6)
+
+(check-expect (how-many-viruses 5 10) 11) (check-expect (how-many-viruses 10 10) 230)
+
+; Tests with high populations
+
+(check-expect (how-many-viruses 1 1000) 10) (check-expect (how-many-viruses 2 1000) 20) (check-expect (how-many-viruses 3 1000) 30) (check-expect (how-many-viruses 4 1000) 60)
+
+(check-expect (how-many-viruses 1 10000) 100) (check-expect (how-many-viruses 2 10000) 200) (check-expect (how-many-viruses 3 10000) 300) (check-expect (how-many-viruses 4 10000) 600)
+
+; how-many-viruses-fast : Natural Natural -> Number ; consumes the number of viruses in the last population ; and the number of hosts in the last population ; produces the number of viruses in the current population
+
+(define (how-many-viruses-fast v-prev h-prev) (local [(define (iter i a b c) (cond [(= i 0) c] [else (iter (- i 1) (+ a b c) a b)]))]
+
+(iter v-prev (max (/ h-prev 50) 2) (max (/ h-prev 100) 1) 0))) 
+;; Tests with low populations (check-expect (how-many-viruses-fast 1 10) 1) (check-expect (how-many-viruses-fast 2 10) 2) (check-expect (how-many-viruses-fast 3 10) 3) (check-expect (how-many-viruses-fast 4 10) 6)
+
+(check-expect (how-many-viruses-fast 5 10) 11) (check-expect (how-many-viruses-fast 10 10) 230)
+
+;; Tests with high populations (check-expect (how-many-viruses-fast 1 1000) 10) (check-expect (how-many-viruses-fast 2 1000) 20) (check-expect (how-many-viruses-fast 3 1000) 30) (check-expect (how-many-viruses-fast 4 1000) 60)
+
+(check-expect (how-many-viruses-fast 1 10000) 100) (check-expect (how-many-viruses-fast 2 10000) 200) (check-expect (how-many-viruses-fast 3 10000) 300) (check-expect (how-many-viruses-fast 4 10000) 600)
