@@ -1,0 +1,95 @@
+;; Lab 2
+(define WPI_ID "ajli") ; fill in with the text before the @ in your wpi email address for credit
+;; Recall the Animal compound data for Boa, Dillo, and Tiger
+
+;; 1) Uncomment and complete the following compound data definition (fill in the _s) such that:
+;;  - the struct is some sort of animal that has been featured in a movie.
+;;  - the missing field is related to the size of the animal
+
+(define-struct goose (name size is-famous?))
+;; a goose is a (make-goose String Integer Boolean)
+;; interp.
+;;  - name is the name of the goose
+;;  - size describes the length of the goose by meters
+;;  - is-famous? is #true if this particular goose has been in a movie
+
+; template:
+; (define (goose)
+;   (...
+;    (goose-name a-goose)
+;    (goose-size a-goose)
+;    (goose-is-famous? a-goose)))
+;  
+
+
+;; examples:
+(define NON-FAMOUS (make-goose "donald" 69 #false))
+(define FAMOUS (make-goose "6ix9ine" 4 #true))
+
+; 2) Edit the following itemization data definition to now use your new animal:
+
+;; An Animal is one of
+;; - Boa
+;; - Dillo
+;; - Goose
+
+; template
+; (define (animal-fcn an-ani)
+;   (cond
+;     [(boa? an-ani) (boa-fcn an-ani)]
+;     [(dillo? an-ani) (dillo-fcn an-ani)]
+;     [(goose? an-ani) (goose-fcn an-ani)]
+;     ))
+
+
+; 3) Modify the following function that consumes an animal to now handle your new animal
+;;  (you may decide how to determine if your animal fits in a cage however you like)
+
+
+;; fits-in-cage?: Animal Number -> Boolean
+;; consumes an animal and the side-length of a cube cage
+;; produces #true if the animal can fit in the cage by the animal specific logic
+
+;; stub: (fits-in-cage? an-ani side-length) #false)
+(check-expect (fits-in-cage? (make-boa "Jhonny" 2 "oranges") 10) #true)
+(check-expect (fits-in-cage? (make-dillo "Arma" 4 #true) 1) #false)
+(check-expect (fits-in-cage? (make-dillo "Arma" 4 #false) 16) #true)
+(check-expect (fits-in-cage? NON-FAMOUS 4)#false)
+(check-expect (fits-in-cage? FAMOUS 0)#false)
+;template:
+; (define (fits-in-cage? an-ani side-length)
+;   (cond
+;     [(boa? an-ani) (boa-fits? an-ani side-length)]
+;     [(dillo? an-ani) (dillo-fits? an-ani side-length)]))
+
+
+(define (fits-in-cage? an-ani side-length)
+  (cond
+    [(boa? an-ani) (boa-fits? an-ani side-length)]
+    [(dillo? an-ani) (dillo-fits? an-ani side-length)]
+    [(goose? an-ani) (goose-fits? an-ani side-length)]
+    )
+  )
+
+
+
+;;;;;; Data and Function Definitions from class without comments
+(define-struct boa (name length fav-food))
+(define-struct dillo (name radius rolled-up?))
+;(define-struct goose (name size is-famous?)) ;; defined above Line 9
+
+; consumes a boa and a side-length
+; produces true if the boa's length is less than the perimeter of the cage.
+(define (boa-fits? a-boa side-length)
+  (< (boa-length a-boa) (* 4 side-length)))
+
+; consumes a dillo and a side-length
+; produces true if the dillo is rolled up into a sphere and fits or is laying flat out and takes up 2x as much room.
+(define (dillo-fits? a-dillo side-length)
+  (if (dillo-rolled-up? a-dillo)
+      (<= (dillo-radius a-dillo) (* 0.50 side-length))
+  (<= (dillo-radius a-dillo) (* 0.25 side-length))))
+; consumes a goose and a size
+; produces true if the goose's size is less than the perimeter of the cage.
+(define(goose-fits? a-goose side-length)
+  (< (goose-size a-goose) (* 4 side-length)))
