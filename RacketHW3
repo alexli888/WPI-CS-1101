@@ -1,0 +1,87 @@
+CS1101 Exercise 3
+
+; Individual Exercises 3 (define WPI_ID "ajli") ; please fill in with the text that comes before the @ in your username ; Learning Objectives: ; - Practice with Nested Structs ; - Lists (of atomic data types) ; - Recursive (helper) functions
+
+; Do not change the data definitions (including struct names, field names, and amount of fields) ; You will be graded on the following functions whose names and arity must match exactly: ; 1) total-calories: SpecialLunch -> Natural ; 2) alternate : ListOfNumber String -> Number ; 3) wordle-words: ListOfString -> ListOfString ; 4) worst-string-overflow: ListOfString ListOfNumber -> Number ; ec) high-demand? : Course -> Boolean ; ; Problem 1 - 10 points ; ; Given the Food and SpecialLunch data definitions below (similar to the ones used in class) ; ; (pay careful attention to the interpretation given for Lunch) ; ; and Step 1 of HtDF ; ; implement a function total-calories that ; ; computes the total (sum) calories in a lunch
+
+(define-struct food (name calories healthy?)) ; a Food is a (make-food String Natural Boolean) ; interp. ; - name is the name of the food ; - calories is the number of calories in 1 serving of this food ; - true if the food is considered healthy
+
+; Examples: (define PIZZA (make-food "Pizza" 350 #false)) (define CHIPS (make-food "Chips" 210 #false)) (define SPORTS-DRINK (make-food "Electromight" 90 #true)) (define PUDDING (make-food "Pudding" 110 #false))
+
+; Template: #; (define (food-fcn a-food) (... (food-name a-food) (food-calories a-food) (food-healthy? a-food)))
+
+(define-struct splunch (entree side drink dessert)) ; a SpecialLunch is a (make-splunch Food Food Food Food) ; interp. ; - entree is the primary food item and has 2 servings ; - side is a secondary food item and has 1 serving ; - drink is a liquid food item and has 3 servings if it is healhy and 1 if it is not ; - dessert is a sweet food item and we don't count/consider its calories if it is healthy
+
+; Example: (define GRAB-N-GO (make-splunch PIZZA CHIPS SPORTS-DRINK PUDDING))
+
+; Template: #; (define (splunch-fcn a-splunch) (... (splunch-entree a-splunch) (splunch-side a-splunch) (splunch-drink a-splunch) (splunch-dessert a-splunch)))
+
+; Step1: ; total-calories SpecialLunch -> Natural ; consumes a special lunch respecting the portions (servings) in the interp. ; produces the total number of calories that we count/consider for that lunch. ;stub: ;(define (total-calories a-splunch) 0)
+
+; Step 2 ; GRAB-N-GO has 2 servings of pizza, 1 serving of chips, ; 3 servings of electromight because it's "healthy", ; and we count the pudding calories because it isn't healthy ; Turn that computation into a check-expect: (check-expect (total-calories GRAB-N-GO) (+ (* 2 (food-calories PIZZA)) (* 1 (food-calories CHIPS)) (* 3 (food-calories SPORTS-DRINK)) (* 1 (food-calories PUDDING)))) (check-expect (total-calories GRAB-N-GO) 1290)
+
+; Step 3: ; [YOUR CODE HERE]
+
+; Step 4: (define (total-calories a-splunch) (+ (* 2 (food-calories (splunch-entree a-splunch))) (* 1 (food-calories (splunch-side a-splunch))) (* (if (food-healthy? (splunch-drink a-splunch)) 3 1) (food-calories (splunch-drink a-splunch))) (* (if (not (food-healthy? (splunch-dessert a-splunch))) 1 0) (food-calories (splunch-dessert a-splunch)))))
+
+;; Step 5: (define CHICKEN (make-food "Chicken" 200 #true)) (define RICE (make-food "Rice" 150 #true)) (define LEMONADE (make-food "Lemonade" 60 #true)) (define CAKE (make-food "Cake" 300 #false)) (define HEALTHY-LUNCH (make-splunch CHICKEN RICE LEMONADE CAKE))
+
+(check-expect (total-calories HEALTHY-LUNCH) 1030)
+
+; ; Problem 2 - 10 points ; ; This problem was inspired by the alternating series from Calculus ; ; Consider the data definition for a list of numbers: ListOfNumber ; ; And Step 1 of HtDF ; ; Complete steps 2-5 of HtDF for the function alternate
+
+; a ListOfNumber is one of ; empty ; (cons Number ListOfNumber)
+
+; Example: (define LON123 (cons 1 (cons 2 (cons 3 empty))))
+
+; Template: #; (define (lon-fcn a-lon) (cond [(empty? a-lon) ...] [(cons? a-lon) (... (first a-lon) (lon-fcn (rest a-lon)))]))
+
+; alternate : ListOfNumber String -> Number ; consumes a list of numbers ; and an operation which may be either "+" or "-" ; produces a number by applying that operation to: ; the first element in the list and the result of alternating on the rest of the list (that is, with the other operator) ; produces 0 if the list is empty ; stub: ;(define (alternate a-lon op) 0)
+
+; Hint for Step 2: alternating the list containing 1 2 3 4 5 ; when starting with "+" would become equivalent to: 1 + (2 - (3 + (4 - 5)))) ; Step 2: ; [YOUR TESTS HERE] (check-expect (alternate '() "") 0)
+
+(check-expect (alternate '() "+") 0) (check-expect (alternate '(5) "+") 5) (check-expect (alternate '(5 10) "+") 15) (check-expect (alternate '(5 10) "-") -5) (check-expect (alternate '(5 10 15) "+") 0)
+
+; Step 3: ; (define (alternate a-lon op) ; (cond [(empty? a-lon) ...] ; [(eq? op "+") (+ (first a-lon) (alternate (rest a-lon) "-") ) ] ; [(eq? op "-") (- (first a-lon) (alternate (rest a-lon) "+") )]))
+
+; Step 4: (define (alternate a-lon op) (cond [(empty? a-lon) 0] [(eq? op "+") (+ (first a-lon) (alternate (rest a-lon) "-"))] [(eq? op "-") (- (first a-lon) (alternate (rest a-lon) "+"))]))
+
+; Step 5: ; [YOUR TESTS HERE]
+
+; ; Problem 3 - 10 points ; ; Given the type comment for a ListOfString ; ; and Step 1 for a function wordle-words ; ; Do:- Implement examples and a template ; ; - HtDF Steps 2 through 5
+
+; a ListOfString is one of: ; - empty ; - (cons String ListOfString)
+
+; Examples: ; [YOUR CONSTANTS HERE] (define LOS1 (cons "hello" (cons "world" (cons "wordle" empty)))) (define LOS2 (cons "hi" (cons "there" (cons "my" (cons "name" (cons "is" empty)))))) ; Template: ; (define (wordle-words a-los) ; (cond [(empty? a-los) ...] ; [(string-length (first a-los)) = 5 ... (first a-los) ... (wordle-words (rest a-los))] ; [else ... (wordle-words (rest a-los))]))
+
+; Step 1: ; wordle-words : ListOfString -> ListOfString ; consumes a list of strings ; produces a list, in the same order, of only the strings that have 5 characters ; stub;(define (wordle-words a-los) a-los)
+
+; Step 2: ; [YOUR TESTS HERE] (check-expect (wordle-words '()) '()) (check-expect (wordle-words '("hello" "world" "apple" "table" "green")) '( "hello" "world" "apple" "table" "green"))
+
+; Step 3: ; ; [YOUR TEMPLATE HERE] ; (define (wordle-words a-los) ; (cond [(empty? a-los) ...] ; [(string-length (first a-los)) = 5 ... (first a-los) ... (wordle-words (rest a-los))] ; [else ... (wordle-words (rest a-los))]))
+
+; Step 4: ; [YOUR CODE HERE] (define (wordle-words a-los) (cond [(empty? a-los) '()] [(= (string-length (first a-los)) 5) (cons (first a-los) (wordle-words (rest a-los)))] [else (wordle-words (rest a-los))]))
+
+; Step 5: ; [YOUR TESTS HERE]
+
+; ; Problem 4 - 10 points ; ; Imagine we are given a ListOfString and a ListOfNumber ; ; the strings are data we want to store in a row in the database and each character takes up 8 bytes ; ; string one corresponds to column one, string two corresponds to column two, etc. ; ; the numbers are the amount of bytes each column in the table has allocated ; ; number one corresponds to column one, number two corresponds to column two, etc. ; ; we want to know the worst (that is, biggest) amount of bytes a column would be over it's allocated amount ; ; if we tried to store the strings ; ; ; Given Steps 1 and 2 of HtDF for a function worst-string-overflow ; ; Do: Steps 3 - 5 of HtDF ; ; Logic for Edge cases: ; ; - If you have more numbers than strings, then produce the worst amount so far because there will be no ; ; data to store in the rest of the columns ; ; - If you have more strings than numbers, then pretend like the number of bytes allocated for that column is 0 ; ; - If a string does not overflow (that is, it's number of bytes is <= the number allocated), produce 0 (do not produce negatives) ; ; Advice: The challenge of this function is combining two list templates into a single function. ; ; Think of all possible cases: both are empty, one is empty, the other is empty, neither are empty
+
+; Step 1: ; worst-string-overflow : ListOfString ListOfNumber -> Number ; consumes a list of strings to store in columns of a database and a list of the number of bytes allocated for each column ; produces the number of the largest overflow of a string size (8 x length) and it's column's allocation ; stub: ;(define (worst-string-overflow a-los bytes-lon) 0)
+
+; Step 2: (check-expect (worst-string-overflow (cons "Good" (cons "Allocation" (cons "Amounts" empty))) (cons 32 (cons 80 (cons 56 empty)))) 0) (check-expect (worst-string-overflow (cons "Good" (cons "BAD" (cons "Good" empty))) (cons 32 (cons 8 (cons 32 empty)))) 16) ; If you need a hint, think "How did I compute 16 using the numbers given as input?"
+
+; Step 3: ; [YOUR TEMPLATE HERE]
+
+; Step 4: ; [YOUR CODE HERE] (define (worst-string-overflow a-los bytes-lon) (cond [(and (empty? a-los) (empty? bytes-lon)) 0] [(empty? a-los) (max bytes-lon)] [(empty? bytes-lon) 0]
+
+    [else (let loop ([a-los a-los] [bytes-lon bytes-lon] [max-overflow 0])
+       (cond [(and (empty? a-los) (empty? bytes-lon)) max-overflow]
+             [(empty? a-los) max-overflow]
+             [(empty? bytes-lon) max-overflow]
+             [else                  (let ([overflow (max (- (* 8 (string-length (first a-los))) (first bytes-lon)) 0)])
+                (loop (rest a-los) (rest bytes-lon) (max overflow max-overflow)))]))]))
+; Step 5: ; [YOUR TESTS HERE]
+
+; ; EXTRA CREDIT - 10 points - nested structs ; ; Given the following data definitions for: ; ; - A Room ; ; - A CourseOffering ; ; Steps 1 and 2 of HtDF ; ; Do: Steps 3-5 of HtDF to implement the function: high-demand? ; ; with the following logic: ; ; a course offering is in high demand ; ; EITHER: ; ; if it's amount of ; ; instructors and enrolled students ; ; total strictly over it's room's capacity ; ; OR: ; ; if there are more than 200 students ; ; (enrolled and waitlisted) ; ; per instrutor ; ; a room's capacity is computed as: ; ; - it's number of seats ; ; - +1 per every 5 seats, but only if it is not a lab ; ; (you can use the function floor with division to compute this number, ; ; but grading will only test with numbers such that it shouldn't matter ; ; if you round correctly) ; ; - +2 for non-listed accessibility seating ; ; - +1 for the instructor's podium ; ; ; You may (and probably should) make helper functions using the HtDF steps ; ; but you will only be graded on the functional correctness of: high-demand?
+
+; ; (define-struct room (id bldg seats lab?)) ; ; A Room is a (make-room String String Natural Boolean) ; ; interp. ; ; - id is the room short code, usually (but not always) a bulding code and a number ; ; - bldg is the bulding name the room is in ; ; - seats is the number of chairs the room has in it ; ; - lab? is true if the room has a computer for each chair ; ; ;template: ; ; ; room-fcn: Room -> ... ; ; (define (room-fcn a-room) ; ; (... ; ; (room-num a-room) ; ; (room-bldg a-room) ; ; (room-seats a-room) ; ; (room-lab? a-room))) ; ; ; ;Examples: ; (define SL115 (make-room "SL155" "Salisbury Labs" 135 #false)) ; (define SL123 (make-room "SL123" "Salisbury Labs" 27 #true)) ; (define FLPHUPR (make-room "FLPHUPR" "Fuller Labs" 200 #false)) ; ; (define-struct course (instructor term enrolled waitlisted num-co room)) ; ; A CourseOffering is a (make-course String String Natural Natural Natural Room) ; ; interp. ; ; - instructor is the name of the instructor in Last, First format ; ; - term is A-E followed by the 2-digit year ; ; - enrolled is the number of students signed up for the course offering ; ; - waitlisted is the number of students on the waitlist ; ; - num-co is the number of co-instructors, in addition to the primary instructor, that are helping facilitate the course ; ; - room is the compound data representing the room that holds the course ; ; (define CS1101-C23-CL01 (make-course "Ahrens, Matthew" ; "C23" ; 135 ; 11 ; 0 ; SL115)) ; (define CS1101-A22-CL01 (make-course "Engling, Michael" ; "A22" ; 175 ; 30 ; 0 ; FLPHUPR)) ; (define CS1101-C23-CX01 (make-course "Ahrens, Matthew" ; "C23" ; 28 ; 0 ; 2 ; SL123)) ; ; ; high-demand?: Course -> Boolean ; ; consumes a course ; ; produces true if the course is in high demand based on it's room capacity or student-to-instructor ratio ; ; stub: ; (define (high-demand? a-course) #false) ; ; ; Step 2: ; (check-expect (high-demand? CS1101-C23-CL01) #false) ; Has enough instructors per students and enough seats ; (check-expect (high-demand? CS1101-A22-CL01) #true) ; Not enough instructors per students ; (check-expect (high-demand? CS1101-C23-CX01) #true) ; Not enough seats in the lab space ; ; ; Step 3: ; ; [YOUR TEMPLATE HERE] ; ; ; Step 4: ; ; [YOUR CODE HERE] ; ; ; Step 5: ; ; [YOUR TESTS HERE]
