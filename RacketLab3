@@ -1,0 +1,143 @@
+; Lab 3
+(define WPI_ID "ajli") ; please put in your username, the text before the @ in your email address
+
+; ; Problem 1
+; ; Given the following data definition for Food and SpecialLunch
+; ; Write a function that gets the calories of the drink in the lunch
+; ; pay special attention to the interpretation of the SpecialLunch
+
+
+(define-struct food (name calories healthy?))
+; a Food is a (make-food String Natural Boolean)
+; interp.
+; - name is the name of the food
+; - calories is the number of calories in 1 serving of this food
+; - true if the food is considered healthy
+
+; Examples(Defining Variables):
+(define PIZZA (make-food "Pizza" 350 #false))
+(define CHIPS (make-food "Chips" 210 #false))
+(define SPORTS-DRINK (make-food "Electromight" 90 #true))
+(define PUDDING (make-food "Pudding" 110 #false))
+
+; Template:
+#;
+(define (food-fcn a-food)
+  (...
+   (food-name a-food)
+   (food-calories a-food)
+   (food-healthy? a-food)))
+
+(define-struct splunch (entree side drink dessert))
+; a SpecialLunch is a (make-splunch Food Food Food Food)
+; interp.
+; - entree is the primary food item and has 2 servings
+; - side is a secondary food item and has 1 serving
+; - drink is a liquid food item and has 3 servings if it is healhy and 1 if it is not
+; - dessert is a sweet food item and we don't count/consider its calories if it is healthy
+
+; Example:
+(define GRAB-N-GO (make-splunch PIZZA CHIPS SPORTS-DRINK PUDDING))
+
+; Template:
+#;
+(define (splunch-fcn a-splunch)
+  (...
+   (splunch-entree a-splunch)
+   (splunch-side a-splunch)
+   (splunch-drink a-splunch)
+   (splunch-dessert a-splunch)))
+
+; Step 1:
+; drink-calories : SpecialLunch -> Natural
+; consumes a special lunch
+; produces the number of calories in the drink of the lunch using the logic in the SpecialLunch interp.
+; stub:
+;(define (drink-calories a-splunch) 0)
+
+; Step 2:
+(check-expect (drink-calories GRAB-N-GO) 270)
+(check-expect (drink-calories (make-splunch
+                               PIZZA
+                               CHIPS
+                               (make-food "Soda" 200 #false)
+                               PUDDING))
+              200)
+; STEP 3:
+; (define (drink-calories a-splunch)
+; (... (food-healthy? (splunch-drink a-splunch))
+; (food-calories (splunch-drink a-splunch)) ))
+
+
+; Step 4:
+(define (drink-calories a-splunch)
+(if (food-healthy? (splunch-drink a-splunch))
+(* 3 (food-calories (splunch-drink a-splunch)))
+(food-calories (splunch-drink a-splunch))))
+
+; Step 5 Test and Debug (More Tests):
+(check-expect (drink-calories GRAB-N-GO) 270)
+
+(check-expect (drink-calories (make-splunch
+PIZZA
+CHIPS
+(make-food "Soda" 200 #false)
+PUDDING))
+200)
+
+(check-expect (drink-calories (make-splunch
+PIZZA
+CHIPS
+(make-food "Water" 0 #true)
+PUDDING))
+0)
+
+(check-expect (drink-calories (make-splunch
+PIZZA
+CHIPS
+(make-food "Juice" 120 #true)
+PUDDING))
+360)
+
+(check-expect (drink-calories (make-splunch
+PIZZA
+CHIPS
+(make-food "Milkshake" 250 #false)
+PUDDING))
+250)
+
+; ; Problem 2
+; ; Implement the following function `strings-lengths`
+; ; Using the ListOfString and ListOfNumber definitions from lecture
+
+
+; Step 1: strings-lengths: ListOfString -> ListOfNumber
+; consumes a list of strings
+; produces a list of the length of each string in the same order
+;(define (strings-lengths a-los) empty)
+
+; Examples Step 2:
+(check-expect (strings-lengths (cons "a" (cons "bb" (cons "ccc" (cons "dddd" empty)))))
+                              (cons 1 (cons 2 (cons 3 (cons 4 empty)))))
+;Step 3:
+; (define (strings-lengths a-los)
+; (cond [(empty? a-los) empty]
+; [else (cons (... (first a-los)) (strings-lengths (... a-los)))]))
+
+;Step 4:
+(define (strings-lengths a-los)
+(cond [(empty? a-los) empty]
+[else (cons (string-length (first a-los)) (strings-lengths (rest a-los)))]))
+
+
+;Step 5
+(check-expect (strings-lengths (cons "a" (cons "bb" (cons "ccc" (cons "dddd" empty)))))
+(cons 1 (cons 2 (cons 3 (cons 4 empty)))))
+
+
+(check-expect (strings-lengths (cons "hello" (cons "world" (cons "!" empty))))
+(cons 5 (cons 5 (cons 1 empty))))
+
+(check-expect (strings-lengths empty) empty)
+
+
