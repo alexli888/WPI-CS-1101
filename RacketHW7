@@ -1,0 +1,105 @@
+CS1101 Exercise 7
+
+;; Exercise 7 - Mutation and state (define WPI_ID "ajli") ; optional, your WPI user name
+
+;; Learning Objectives: ;; - practice with mutation set! and set-struct!
+
+;; Functions you are graded on (10 points each) ;; initialize! : -> Void ;; add-user! : String -> Void ;; follow! : String String -> Void ;; follows? : String String -> Boolean ;; Extra Credit: influence : String String -> ListOf String
+
+;; Problem domain: Social Media ;; In the beginning there was usenet... ;; Eventually, there was facebook, which was just like myspace, but without the fun html editing and viruses ;; Then in 2006, Twitter was just like facebook, but only the status panel and you couldn't play farmville ;; Now we are making mλspace (pronounced: mlambdaspace) ;; Which is just like twitter, except no one is allowed to post anything because it's better this way. ;; Profiles can only follow other profiles.
+
+;; Use stateful programming to design a prototype API (code library/application) for ;; mλspace's social media system
+
+;;;;;;;;;;;;;;;;;;;; ;; Data Definitions
+
+(define-struct profile (name following)) ;; a Profile is a (make-profile String (ListOf Profile)) ;; - name is a "@username" ;; - following are the users that this profile follows ;; following can be one-directional (A following B does not imply B follows A) ;; INVARIANT: The following profiles must be by reference (not new copies)
+
+;; Examples: (define GOMPEI (make-profile "@GOMPEI_GOAT1865" empty)) ;; Example mutations: ;; (set-profile-name! GOMPEI "@GOMPEI_THE_GOAT1865") ;; (set-profile-following! GOMPEI (list GOMPEI)) ; gompei follows himself like a boss ;; (set! GOMPEI (make-profile "@GOMPEI_GOAT1865" empty) ; <- different value in memory than the previous one! ;; note: make-profile will always make a new struct value in memory.
+
+;; Template - mutually recursive data structure ;; Note: you only need the lop-fcn if you are doing the extra credit
+
+; (define (profile-fcn a-profile) ; (... ; (profile-name a-profile) ; (lop-fcn (profile-following a-profile)))) ; ; (define (lop-fcn a-lop) ; (... ; (profile-fcn (first a-lop)) ; (lop-fcn (rest a-lop)))) ;
+
+(define-struct pnode (profile left right)) ;; a ProfileBST is one of ;; - #false ;; - (make-pnode Profile ProfileBST ProfileBST) ;; invariant: sorted by usernames using string<?
+
+;; ProfileBST Functions you can use
+
+;; plookup : String ProfileBST -> Profile ;; consumes a profileBST ;; produces a profile with that username if it exists ;; EFFECT: produces an error if the name doesn't exist in the tree (define (plookup username pbst) (cond [(false? pbst) ((error (string-append "username: " username " not found")))] [else (cond [( string=? username (profile-name (pnode-profile pbst))) (pnode-profile pbst)] [(string<? username (profile-name (pnode-profile pbst))) (plookup username (pnode-left pbst))] [else (plookup username (pnode-right pbst))])]))
+
+;; pinsert : Profile ProfileBST -> ProfileBST ;; consumes a profile and a database of profiles ;; produces a modified database of profiles ;; EFFECT: produces an error if the name already exists
+
+(define (pinsert profile pbst) (cond [(false? pbst) (make-pnode profile #false #false)] [(pnode? pbst) (cond [( string=? (profile-name profile) (profile-name (pnode-profile pbst))) (error (string-append "username: " (profile-name profile) " already exists"))] [(string<? (profile-name profile) (profile-name (pnode-profile pbst))) (make-pnode (pnode-profile pbst) (pinsert profile (pnode-left pbst)) (pnode-right pbst))] [else (make-pnode (pnode-profile pbst) (pnode-left pbst) (pinsert profile (pnode-right pbst)))])]))
+
+;;;;;; APPLICATION STATE - DO NOT MODIFY THIS CODE
+
+; mλspace Tawm is the root user and everyone else follows him by default. ; he follows no one, not even himself. ;; TAWM : Profile (define TAWM (make-profile "@mλspace_tawm" empty))
+
+;; profile-db : ProfileBST ;; EFFECT: The state/database for this application ;; interp. A database of profiles organized by username (define profile-db #false)
+
+;; YOUR TURN - YOUR WORK GOES BELOW HERE ;; Design the following 4 functions such that the check-expects ;; at the bottom of the file pass. ;; Note, it is very hard to test stateful programs. ;; It will be easier to just test using the interactions window ;; but you may mimic my check-expects if you like.
+
+;; This is the only way for you to know what order they will ;; get run in.
+
+;; For all problems, in your inventory are the functions: ;; built-in operators: local, begin, set!, and set-struct! ;; application state: profile-db and TAWM ;; data functions (defined above): plookup and pinsert ;; note: plookup and pinsert handle throwing errors for you ;; you may use abstraction functions to manipulate lists if you like
+
+;; Problem 1 - 10 points
+
+; ; ;; design a function initialize! with the following ; ;; signature and purpose ; ; ;; Your answer should be a single call to set! ; ;; the reference solution is about 3 lines of code
+
+;; Step 1 ;; initialize! : -> Void ;; consumes nothing ;; produces nothing ;; EFFECT: initializes profile-db to ;; a bst just containing TAWM ;; (specifically, the constant defined as TAWM) ;; stub: ;(define (initialize!) (void))
+
+(define (initialize!) (set! profile-db (pinsert TAWM #false)))
+
+;; YOU DO Step 2 -> 5 ;; Hint: A good way to test is to just put profile-db ;; in the interactions area
+
+; ;;; Problem 2 - 10 points
+
+; ; ;; design a function add-user! with the following ; ;; signature and purpose ; ; ;; your answer should be a single call to set! ; ;; The reference solution is roughly 5 lines of code
+
+;; Step 1
+
+;; add-user! : String -> Void ;; consumes a username ;; produces nothing ;; EFFECT: modifies the profile-db by adding a profile with: ;; that username and follows TAWM ;; EFFECT: produces an error if the username already exists
+
+;; stub: ;uncomment when doing step 4 ;(define (add-user! username) (void))
+
+(define (add-user! username) (let ((new-user (make-profile username empty))) (set! profile-db (pinsert new-user profile-db))))
+
+;; YOU DO Step 2 -> 5 ;; Hint: a good way to test is to call add-user! ;; and then put profile-db in the interactions area
+
+; ;; ; Problem 3 - 10 points
+
+; ; ;; design a function follow! with the following ; ;; signature and purpose ; ; ;; The reference solution uses local to make ; ;; variables for the things we want to call ; ;; set-struct! on. ; ; ;; The reference solution is about 8 lines of code
+
+;; Step 1
+
+;; follow! : String String -> Void ;; consumes two usernames ;; produces nothing ;; EFFECT: modifies the profile with the first username by ;; by putting adding the profile with the second username ;; in the first's list of following ;; EFFECT: causes an error if either of the usernames don't exist ;; stub: ;uncomment when doing step 4 ;(define (follow! follower followee) (void)) (define (follow! follower following) (let* ((follower-profile (plookup follower profile-db)) (following-profile (plookup following profile-db))) (set-profile-following! follower-profile (cons following-profile (profile-following follower-profile)))))
+
+;; YOU DO Step 2 -> 5 ;; hint: for step 2, write out test scripts that you would use to test ;; once it is made rather than check-expects ;; you can look at the check-expect at the end of this file ;; for an example
+
+; ;;; Problem 4 - 10 points
+
+; ; ;; design a function follows? with the following ; ;; signature and purpose ; ; ;; The reference solution uses local to make ; ;; variables for the things we want to call ; ;; set-struct! on. ; ;; The reference solution uses the built-in function member? ; ;; the reference solution is about 6 lines of code
+
+;; Step 1
+
+;; follows?: String String -> Boolean ;; consumes two usernames ;; produces true if the first username's profile follows the second's ;; EFFECT: produces an error if the given usernames are not in the profile db ;(define (follows? follower followee) #false)
+
+;; YOU DO Step 2 -> 5 (define (follows? follower following) (let* ((follower-profile (plookup follower profile-db)) (following-profile (plookup following profile-db))) (if (member following-profile (profile-following follower-profile)) #f #t)))
+
+;; Uncomment this to check:
+
+(check-expect (begin (initialize!) (add-user! "@gompei_goat1865") (add-user! "@mahrens") (add-user! "@adm_gh") (add-user! "@mhamilton_nasa") (add-user! "@go_jumbo") (add-user! "@bristaco_the_bear") (follow! "@mahrens" "@gompei_goat1865") (follow! "@mahrens" "@go_jumbo") (follow! "@mahrens" "@bristaco_the_bear") (follow! "@adm_gh" "@mhamilton_nasa") (follow! "@mhamilton_nasa" "@adm_gh") (and (follows? "@adm_gh" "@mhamilton_nasa") (follows? "@mhamilton_nasa" "@adm_gh") (follows? "@bristaco_the_bear" "@mλspace_tawm") (not (follows? "@mλspace_tawm" "@gompei_goat1865")) (follows? "@mahrens" "@gompei_goat1865") (not (follows? "@mahrens" "@mahrens")))) #true)
+
+; ; ; Extra Credit - 10 points
+
+; ; Design and implement a function influence with the following ; ; signature, purpose, and stub ; ; ;; NOTE: This extra credit is a challenge about the optional content: graphs with cycles. ; ;; It will be difficult to create from nothing and has some pitfalls. ; ;; For example, if A follows B, B follows C, and C follows A ; ;; How do you avoid getting into an infinite loop when trying to ; ;; find out if A has a following path to D? ; ;; You may want to look at the optional video lectures on graphs ; ;; or translate this lesson from a Javalike syntax to ASL/Racket: ; ;; https://course.ccs.neu.edu/cs2510asp20/lecture30.html ; ;; Or ask about it in office hours ; ; ;; The reference solution uses local and a stateful variable ; ;; to keep track of which profile's we've already checked ; ;; In general, it treats each profile like an Arbitrary-Arity Tree ; ;; (except it can have cycles, making it a graph and requiring the stateful variable) ; ; ;; To make it a bit easier, I've provided a template of the approach the reference solution uses. ; ;; The reference solution is roughly 22 lines of code and ; ;; in addition to the template below, it uses the operators/values: ; ;; begin, local, define, set!, if, string=?, false? cons, empty, and #false. ; ;; The reference solution does not use any higher-order functions, as it is a mutually recursive solution ;
+
+;; influence : String String -> ListOfString or #false ;; consumes two usernames ;; produces the list of usernames, starting with username1 and ending with username2 ;; including all of usernames of the following profile relationships (path in the graph) between them. ;; produces #false if you cannot reach username2 from username1 ;; EFFECT: has an error if username1 does not exist in the profile db ;; stub: ;(define (influence username1 username2) #false)
+
+; Template of the approach the reference solution uses: ; (define (influence username1 username2) ; (local ; [(define profile1 (plookup username1 profile-db)) ; (define visited empty) ; (define (influence-h profile) ; (... ; (profile-name profile) ; (influence-h-lop (profile-following profile)))) ; (define (influence-h-lop profiles) ; (cond ; [(empty? profiles) ...] ; [(cons? profiles) ; (... ; (influence-h (first profiles)) ; (influence-h-lop (rest profiles)))]))] ; (... (influence-h profile1))))
+
+; ; (define (influence username1 username2) ; (local ; [(define profile1 (plookup username1 profile-db)) ; (define visited empty) ; (define (influence-h profile) ; (cond ; [(member (profile-name profile) visited) #false] ; [(string=? username2 (profile-name profile)) ; (list (profile-name profile))] ; [else ; (set! visited (cons (profile-name profile) visited)) ; (define followings (profile-following profile)) ; (define followings-influence ; (map influence-h (filter (negate empty?) (list->vector followings)))) ; (if (ormap (compose not empty?) followings-influence) ; (cons (profile-name profile) ; (apply append followings-influence)) ; #false)]))] ; (influence-h profile1))) ;
+
+(define (influence user1 user2) (let* ((user1-profile (plookup user1 profile-db)) (user2-profile (plookup user2 profile-db))) (let loop ((remaining (profile-following user1-profile)) (influencers empty)) (if (null? remaining) influencers (let ((follower-profile (car remaining))) (if (member follower-profile (profile-following user2-profile)) (loop (cdr remaining) (cons (profile-name follower-profile) influencers)) (loop (cdr remaining) influencers)))))))
+
+;; Example test: #; (check-expect (begin (initialize!) (add-user! "@mahrens") (add-user! "@aria") (add-user! "@dragan") (add-user! "@francesca") (follow! "@mahrens" "@aria") (follow! "@aria" "@dragan") (follow! "@dragan" "@aria") (follow! "@dragan" "@francesca") (follow! "@francesca" "@mahrens") (follow! "@dragan" "@mahrens") (follow! "@francesca" "@aria") (influence "@mahrens" "@francesca")) (list "@mahrens" "@aria" "@dragan" "@francesca"))
