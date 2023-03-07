@@ -1,0 +1,106 @@
+CS1101 Exercise 2
+
+;; Exercises 2 Answers (define WPI_ID "ajli")
+
+; ; For problems 1 - 3 ; ; Problem Domain: 3D Printing Hardware ; ; Use the following compound data definition for ; ; a 3D printer's temperature sensor
+
+(define-struct temp-sensor (degrees units resin?)) ;; a TempSensor is a (make-temp-sensor Number String Boolean) ;; interp. ;; - degrees is the magnitude of the temperature ;; - units is either "F", "C", or "K" for Fahrenheit, Celsius, and Kelvin, respectively ;; - resin? is true if it is a resin-style 3D printer, false if it is an extruder (like PLA)
+
+;template: ; (define (temp-sensor-fcn a-tmpsnsr) ; (... ; (temp-sensor-degrees a-tmpsnsr) ; (temp-sensor-units a-tmpsnsr) ; (temp-sensor-style a-tmpsnsr)))
+
+;Examples (define PLA-OP-TEMP (make-temp-sensor 210 "C" #false)) (define RESIN-OP-TEMP (make-temp-sensor 75 "F" #true))
+
+; ;; Problem 1 - 10 points ; ;; Given HtDF Steps 1, 2, and 3 ; ;; Do Steps 4 and 5 ; ;; Note: You may use the built-in operator ; round ; ;; to round to the nearest integer. ; ;; Note: You may find it useful to create ; ;; a helper function
+
+;; Step 1 ;; to-si: TempSensor -> TempSensor ;; consumes a temperature sensor ;; produces the same temperature sensor in Kelvin ;; rounds to the nearest integer
+
+;; stub: ;(define (to-si a-tmpsnsr) a-tmpsnsr)
+
+;; Step 2 (check-expect (to-si PLA-OP-TEMP) (make-temp-sensor 483 "K" #false)) (check-expect (to-si RESIN-OP-TEMP) (make-temp-sensor 501 "K" #true))
+
+;; Step 3 ;template: ; (define (to-si a-tmpsnsr) ; (... ; (temp-sensor-degrees a-tmpsnsr) ; (temp-sensor-units a-tmpsnsr) ; (temp-sensor-resin? a-tmpsnsr))) ; ; inventory: We can produce a TempSensor with ; make-temp-sensor
+
+;; Step 4 (define (to-si a-tmpsnsr) (let* ( (degrees (temp-sensor-degrees a-tmpsnsr)) (units (temp-sensor-units a-tmpsnsr)) (resin? (temp-sensor-resin? a-tmpsnsr)) (converted-degrees (cond [(string=? units "F") (* ( + degrees 459.67 ) 5/9)] [(string=? units "C") (+ 273.15 degrees)] [(string=? units "K") degrees])) ) (make-temp-sensor (round converted-degrees) "K" resin?)))
+
+;; Step 5 (check-expect (to-si (make-temp-sensor 32 "F" #f)) (make-temp-sensor 477 "K" #f)) (check-expect (to-si (make-temp-sensor 0 "C" #t)) (make-temp-sensor 273 "K" #t)) (check-expect (to-si (make-temp-sensor 273.15 "K" #f)) (make-temp-sensor 273 "K" #f))
+
+; ;; Problem 2 - 10 points ; ;; Given HtDF Steps 1, 2, and 3 ; ;; Do Steps 4 and 5
+
+;; Step 1 ;; too-cold?: TempSensor -> Boolean ;; consumes a temperature sensor ;; produces true if the hardware is too cold (<= 180F for PLA, 40F for Resin) ;; stub: ;(define (too-cold? a-tmpsnsr) #false)
+
+;; Step 2 (check-expect (too-cold? PLA-OP-TEMP) #false) (check-expect (too-cold? RESIN-OP-TEMP) #false) (check-expect (too-cold? (make-temp-sensor 0 "C" #false)) #true) (check-expect (too-cold? (make-temp-sensor 32 "F" #true)) #true)
+
+;; Step 3 ;template: ; (define (too-cold? a-tmpsnsr) ; (... ; (temp-sensor-degrees a-tmpsnsr) ; (temp-sensor-units a-tmpsnsr) ; (temp-sensor-resin? a-tmpsnsr))) ;
+
+; Step 4
+
+(define (too-cold? a-tmpsnsr) (let* ( (degrees (temp-sensor-degrees a-tmpsnsr)) (units (temp-sensor-units a-tmpsnsr)) (resin? (temp-sensor-resin? a-tmpsnsr)) (converted-degrees (if (string=? units "F") degrees (if (string=? units "C") (* 9/5 (+ degrees 32)) (* 9/5 (- degrees 273.15) 32)))) ) (cond [(and (not resin?) (<= converted-degrees 180)) #t] [(and resin? (<= converted-degrees 40)) #t] [else #f])))
+
+;; Step 5 - edge cases ;; [YOUR CODE HERE]
+
+; ;; Problem 3 - 10 points ; ;; Given HtDF Steps 1, 2, and 3 ; ;; Do Steps 4, and 5 ; ; ;; Note: You may need to make more than one helper function ; ; ;; Use the following logic (not emperically accurate, numbers chosen for usibility in HW) ; ;; to determine which of two 3D printers is going to print faster: ; ;; - a PLA print at 180F or lower takes 150 minutes ; ;; - a PLA print gets 1 min faster per 2 degrees F until reaching 410F (35 minutes minimum) ; ;; - a Resin print at 40F or lower takes 75 minutes ; ;; - a Resin print gets 1 min faster per degree F until reaching 75F (40 minutes minimum)
+
+;; Step 1 ;; prints-faster?: TempSensor TempSensor -> Boolean ;; consumes two temperature sensors ;; produces true if the first sensor will print faster than the second ;; false otherwise including in the case of ties ;; stub: ;(define (prints-faster? one-tmpsnsr two-tmpsnsr) #false)
+
+;; Step 2 ;; Bounds: (check-expect (prints-faster? (make-temp-sensor 40 "F" #true) (make-temp-sensor 39 "F" #true)) #false) (check-expect (prints-faster? (make-temp-sensor 75 "F" #true) (make-temp-sensor 76 "F" #true)) #false) (check-expect (prints-faster? (make-temp-sensor 180 "F" #false) (make-temp-sensor 179 "F" #false)) #false) (check-expect (prints-faster? (make-temp-sensor 410 "F" #false) (make-temp-sensor 411 "F" #false)) #false)
+
+;; Typical use: (check-expect (prints-faster?(make-temp-sensor 45 "F" #true) (make-temp-sensor 350 "F" #false)) #true)
+
+(check-expect (prints-faster? (make-temp-sensor 350 "F" #false) ; 65 min (make-temp-sensor 45 "F" #true)) ; 70 min #false)
+
+;; Step 3 ;template and inventory: ; (define (prints-faster? one-tmpsnsr two-tmpsnsr) ; (... ; (temp-sensor-fcn one-tmpsnsr) ; (temp-sensor-fcn two-tmpsnsr))) ; ; ; Suggested helper functions, but you can make different ones: ; (define (print-minutes a-tmpsnsr) ; (... ; (temp-sensor-degrees a-tmpsnsr) ; (temp-sensor-units a-tmpsnsr) ; (temp-sensor-resin? a-tmpsnsr))) ; ; (define (pla-print-minutes degrees-f) ; (... degrees-f)) ; ; (define (resin-print-minutes degrees-f) ; (... degrees-f)) ; ; (define (to-f degrees units) ; (cond [(string=? units "C") ...] ; [(string=? units "K") ...] ; [(string=? units "F") degrees])) ;
+
+;; Step 4
+
+(define (to-f degrees units) (cond [(string=? units "C") (+ (* 9/5) degrees 32)] [(string=? units "K") (- (* 9/5) (- degrees 273.15) 32)] [(string=? units "F") degrees]))
+
+(define (pla-print-minutes temperature) (cond [(<= temperature 180) 150] [(> temperature 410) 35] [else (+ 150 (* (- temperature 180) 0.5))]))
+
+(define (resin-print-minutes temperature) (cond [(<= temperature 40) 75] [(> temperature 75) 40] [else (+ 75 (- temperature 40))]))
+
+(define (prints-faster? one-tmpsnsr two-tmpsnsr) (let ((temp1 (temp-sensor-degrees one-tmpsnsr)) (temp2 (temp-sensor-degrees two-tmpsnsr))
+
+    (unit1 (temp-sensor-units one-tmpsnsr))
+    (unit2 (temp-sensor-units two-tmpsnsr))
+    
+    (resin1 (temp-sensor-resin? one-tmpsnsr))
+    (resin2 (temp-sensor-resin? two-tmpsnsr)))
+
+(let ((time1 (if resin1 (resin-print-minutes (to-f temp1 unit1)) (pla-print-minutes (to-f temp1 unit1))))
+      (time2 (if resin2 (resin-print-minutes (to-f temp2 unit2)) (pla-print-minutes (to-f temp2 unit2)))))
+  
+  (if (> time1 time2) #true #false))))
+;; Step 5 ;; [YOUR CODE HERE] (check-expect (to-f 0 "C") 33.8) (check-expect (to-f 100 "C") 133.8) (check-expect (to-f 0 "K") 242.95) (check-expect (to-f 273.15 "K") -30.2) (check-expect (to-f 100 "F") 100)
+
+; ;; Problem 4 - 10 points ; ;; Given a HtDD itemization for a Roomba ; ;; Given HtDF Steps 1 and 2 ; ;; Do Steps 3, 4, and 5 ; ;; for the function next-task ; ; ;; Hint: Doing steps 3 and 5 are very important for this problem ; ;; It will be useful to make a helper function (with template) ; ;; for each ... in the cond of the template for next-task ; ;; to break the computation into smaller bits ;
+
+(define-struct routine (percent)) (define-struct spot-clean (location)) ; A Roomba is one of: ; - "Charging" ; - (make-routine Natural) ; - (make-spot-clean String) ; - #false ; interp. ; - "Charging" if the roomba is currently at its charging station ; - make-routine where the the natural number is the progress between 0 and 100 (ie. 0% and 100% done) ; - make-spot-clean where the String is the location in the house the roomba should go clean ; - #false if the roomba is offline or otherwise unreachable
+
+; Examples: (define CHARGING "Charging") (define START-ROUTINE (make-routine 0)) (define HALF-ROUTINE (make-routine 50)) (define DONE-ROUTINE (make-routine 100)) (define GOTO-BED (make-spot-clean "Bed")) (define BROKEN-ROBO #false)
+
+; template: ; (define (roomba-fcn a-roomba) ; (cond ; [(and (string? a-roomba) ; (string=? a-roomba "Charging")) ...] ; [(routine? a-roomba) ; (... (routine-percent a-roomba))] ; [(spot-clean? a-roomba) ; (... (spot-clean-location a-roomba))] ; [(false? a-roomba) ...]))
+
+; Step 1 ; next-task: Roomba String -> Roomba ; consumes a roomba in a current state and a task that is one of "Charge", "Continue", or otherwise a location to spot-clean ; produces the next state of the roomba
+
+; Use the following logic: ; A roomba that is "Charging" will continue to charge given "Charge" task, ; it will start its routine at 0% given the "Continue" task, ; and it will switch to spot cleaning if given a location ; A roomba that is in a routine will switch to "Charging" when told to "Charge", ; it will increase its percent by 1 when told to "Continue" unless it is already at 100% where it will switch to "Charging" on its own ; it will only go to spot cleaning when given a location if it is 50% or more done with its routine, otherwise it does not change state or advance its percentage ; A roomba that is spot-cleaning will ignore "Charging" commands, ; it will switch to its routine at 0% when told to continue ; and it will switch to spot cleaning a new location when given that location ; A roomba that is offline (false) will only listen to the "Charge" instruction which connects it to its dock and switches it to "Charging"
+
+; stub: ;(define (next-task a-roomba a-task) a-roomba)
+
+; Step 2 (check-expect (next-task "Charging" "Continue") (make-routine 0)) (check-expect (next-task (make-routine 75) "Bathroom") (make-spot-clean "Bathroom")) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ;step4: (define (next-task a-roomba a-task)
+(cond [(string? a-roomba) (handle-charging a-roomba a-task)] [(routine? a-roomba) (handle-routine a-roomba a-task)] [(spot-clean? a-roomba) (handle-spot-clean a-roomba a-task)] [(false? a-roomba) (handle-offline a-roomba a-task)] ) )
+
+(define (handle-charging a-roomba a-task) (cond [(string=? a-task "Charge") a-roomba] [(string=? a-task "Continue") (make-routine 0)] [else (make-spot-clean a-task)] ) )
+
+(define (handle-routine a-roomba a-task)
+(cond [(string=? a-task "Charge") CHARGING] [(string=? a-task "Continue")
+
+(if (= (routine-percent a-roomba) 100) CHARGING (make-routine (+ 1 (routine-percent a-roomba))))] [(> (routine-percent a-roomba) 50) (make-spot-clean a-task)]
+
+[else a-roomba] ) )
+
+(define (handle-spot-clean a-roomba a-task) (cond [(string=? a-task "Charge") a-roomba] [(string=? a-task "Continue") (make-routine 0)] [else (make-spot-clean a-task)] ) )
+
+(define (handle-offline a-roomba a-task)
+(cond [(string=? a-task "Charge") CHARGING] [else a-roomba] ) ) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ; Step 5 (check-expect (next-task "Charging" "Continue") (make-routine 0)) (check-expect (next-task (make-routine 75) "Bathroom") (make-spot-clean "Bathroom")) (check-expect (next-task (make-routine 75) "Charge") CHARGING) (check-expect (next-task (make-routine 100) "Continue") CHARGING) (check-expect (next-task (make-routine 0) "Continue") (make-routine 1)) (check-expect (next-task (make-spot-clean "Bed") "Continue") (make-routine 0)) (check-expect (next-task (make-spot-clean "Bed") "Kitchen") (make-spot-clean "Kitchen")) (check-expect (next-task #false "Charge") CHARGING) (check-expect (next-task #false "Continue") #false)
+
+(check-expect (next-task (make-routine 100) "Continue") CHARGING) (check-expect (next-task (make-routine 99) "Continue") (make-routine 100)) (check-expect (next-task (make-routine 1) "Continue") (make-routine 2)) (check-expect (next-task (make-routine 0) "Continue") (make-routine 1)) (check-expect (next-task (make-spot-clean "Bed") "Charge") (make-spot-clean "Bed")) (check-expect (next-task #false "Continue") #false) (check-expect (next-task #false "Kitchen") #false)
