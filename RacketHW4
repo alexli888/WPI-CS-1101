@@ -1,0 +1,97 @@
+CS1101 Exercise 4
+
+; Individual Exercises 4: (define WPI_ID "ajli") ; In this homework, you will practice: ; - Traversal of Binary Trees ; - Lookup of values in Binary Search Trees
+
+; The four functions being graded are: ; 1)in-order-append : StringBT -> String ; 2)pre-order-append : StringBT -> String ; 3)post-order-append : StringBT -> String ; 4)ns-lookup : NSBST Number -> String or #false ; ec) count-invalid NSBST -> Number
+
+; ; Problem 1,2, and 3 - 24 points total ; ; Given the following data definition for a ; ; Binary Tree of Strings (not a Binary Search Tree) ; ; and HtDF Steps 1,2,3 ; ; Do: implement the function in HtDF step 4 by: ; ; - copying the template from step 3 given to you ; ; - implementing the ... for the false? case ; ; - implementing the ... and potentially rearranging the selectors in the snode? case. ; ; Write tests for HtDF step 5 until you are confident in your solution ; ; for the following functions: ; ; - in-order-append ; ; - pre-order-append ; ; - post-order-append ; ; Hints: The Step 1 and 2 tell you what each function is supposed to do ; ; All three solutions are small and very similar to each other ; ; In fact, they just combine the current data and the two recursive calls ; ; in different orders using string-append. ; ; You do not need any other code that that. ; ; You may want to make more StringBT example constants to test with
+
+(define-struct snode (data left right)) ; a StringBT is one of: ; - #false ; - (make-snode String StringBT StringBT) ; interp. A Binary Tree of String values with #false leafs ; and a StringNode as the data nodes with 2 subtrees.
+
+; Examples: (define SLEAF #false) ; a ; b c ;d e f g (define ABC-BT (make-snode "a" (make-snode "b" (make-snode "d" SLEAF SLEAF) (make-snode "e" SLEAF SLEAF)) (make-snode "c" (make-snode "f" SLEAF SLEAF) (make-snode "g" SLEAF SLEAF))))
+
+; Template: ; (define (sbt-fcn a-sbt) ; (cond ; [(false? a-sbt) ...] ; [(snode? a-sbt) ; (... ; (snode-data a-sbt) ; (sbt-fcn (snode-left a-sbt)) ; (sbt-fcn (snode-right a-sbt)))]))
+
+; in-order-append - Step 1 ; in-order-append: StringBT -> String ; consumes a binary tree of strings ; produces a string with all the data appended such that: ; the left subtree's value is appended first ; then the root's data value ; then the right subtree's value
+
+; Stub: ; comment out before step 4 ;(define (in-order-append a-sbt) "")
+
+; in-order-append Step 2 (check-expect (in-order-append SLEAF) "") (check-expect (in-order-append ABC-BT) "dbeafcg")
+
+; Step 3 - Template and inventory ; (define (in-order-append a-sbt) ; (cond ; [(false? a-sbt) ...] ; [(snode? a-sbt) ; (... ; (snode-data a-sbt) ; (in-order-append (snode-left a-sbt)) ; (in-order-append (snode-right a-sbt)))])) ; ; Inventory: string-append, string literals ; ; Hint: You do not need any other functions
+
+; Step 4
+
+(define (in-order-append a-sbt) (cond [(false? a-sbt) ""] [(snode? a-sbt) (string-append (in-order-append (snode-left a-sbt)) (snode-data a-sbt) (in-order-append (snode-right a-sbt)))])) ; Step 5
+
+(check-expect (in-order-append SLEAF) "") (check-expect (in-order-append ABC-BT) "dbeafcg") (check-expect (in-order-append (make-snode "a" SLEAF SLEAF)) "a") (check-expect (in-order-append (make-snode "a" (make-snode "b" SLEAF SLEAF) SLEAF)) "ba") (check-expect (in-order-append (make-snode "a" SLEAF (make-snode "b" SLEAF SLEAF))) "ab")
+
+; Problem 2
+
+; pre-order-append - Step 1 ; pre-order-append: StringBT -> String ; consumes a binary tree of strings ; produces a string with all the data appended such that: ; the the root's data value is appended first ; then left subtree's value ; then the right subtree's value ; Stub: ; comment out before Step 4 ;(define (pre-order-append a-sbt) "")
+
+; in-order-append Step 2 (check-expect (pre-order-append SLEAF) "") (check-expect (pre-order-append ABC-BT) "abdecfg")
+
+; Step 3 - Template and inventory ; (define (pre-order-append a-sbt) ; (cond ; [(false? a-sbt) ...] ; [(snode? a-sbt) ; (... ; (snode-data a-sbt) ; (pre-order-append (snode-left a-sbt)) ; (pre-order-append (snode-right a-sbt)))])) ; ; Inventory: string-append, string literals ; ; Hint: You do not need any other functions
+
+; Step 4 ; [YOUR IMPLEMENTATION HERE] (define (pre-order-append a-sbt) (cond [(false? a-sbt) ""] [(snode? a-sbt) (string-append (snode-data a-sbt) (pre-order-append (snode-left a-sbt)) (pre-order-append (snode-right a-sbt)))]))
+
+; Step 5 ; [YOUR EDGE CASE AND OTHER TESTS HERE] (check-expect (pre-order-append SLEAF) "") (check-expect (pre-order-append ABC-BT) "abdecfg") (check-expect (pre-order-append (make-snode "a" SLEAF SLEAF)) "a") (check-expect (pre-order-append (make-snode "a" (make-snode "b" SLEAF SLEAF) SLEAF)) "aba") (check-expect (pre-order-append (make-snode "a" SLEAF (make-snode "b" SLEAF SLEAF))) "abab") ; Problem 3
+
+; post-order-append - Step 1 ; pre-order-append: StringBT -> String ; consumes a binary tree of strings ; produces a string with all the data appended such that: ; the left subtree's value is appended first ; then the right subtree's value ; then the root's data value ; Stub: ; comment out before step 4 ;(define (post-order-append a-sbt) "")
+
+; in-order-append Step 2 (check-expect (post-order-append SLEAF) "") (check-expect (post-order-append ABC-BT) "debfgca")
+
+; Step 3 - Template and inventory ; (define (post-order-append a-sbt) ; (cond ; [(false? a-sbt) ...] ; [(snode? a-sbt) ; (... ; (snode-data a-sbt) ; (post-order-append (snode-left a-sbt)) ; (post-order-append (snode-right a-sbt)))])) ; ; Inventory: string-append, string literals ; ; Hint: You do not need any other functions
+
+; Step 4 ; [YOUR IMPLEMENTATION HERE] (define (post-order-append a-sbt) (cond [(false? a-sbt) ""] [(snode? a-sbt) (string-append (post-order-append (snode-left a-sbt)) (post-order-append (snode-right a-sbt)) (snode-data a-sbt))]))
+
+; Step 5 ; [YOUR EDGE CASE AND OTHER TESTS HERE] (check-expect (post-order-append SLEAF) "") (check-expect (post-order-append ABC-BT) "debfgca")
+
+; ; Problem 4 - BST - 16 points ; ; Given the Data definition for a BST of Number keys and Strings ; ; and an insert function ; ; design and implement a function: ns-lookup ; ; which finds the string for the given numeric key in an NSBST ; ; Note: Your implementation must use the invariant and NOT search the whole tree. ; ; It should only recurse down a single path from root to leaf and then produce ; ; false if it does not find the key. ; ; you may assume the NSBST you are given respects the invariant
+
+(define-struct ns-node (key data left right)) ; a NSBST is one of: ; - #false ; - (make-ns-node Number String NSBST NSBST) ; INVARIANT: ; left's key <= root's key <= right's key ; interp. ; A Binary Search Tree (BST) with Number keys and String data values
+
+; Examples: (define NSLEAF #false) (define 1TO7NSBST (make-ns-node 4 "four" (make-ns-node 2 "two" (make-ns-node 1 "one" NSLEAF NSLEAF) (make-ns-node 3 "three" NSLEAF NSLEAF)) (make-ns-node 6 "six" (make-ns-node 5 "five" NSLEAF NSLEAF) (make-ns-node 7 "seven" NSLEAF NSLEAF))))
+
+; Template: ; (define (ns-bst-fcn a-ns-bst a-num) ; (cond ; [(false? a-ns-bst) ...] ; [(ns-node? a-ns-bst) ; (... ; (cond ; [(= a-num (ns-node-key a-ns-bst)) ; (... (ns-node-data a-ns-bst))] ; [(< a-num (ns-node-key a-ns-bst)) ; (... ; (ns-bst-fcn (ns-node-left a-ns-bst) a-num))] ; [(> a-num (ns-node-key a-ns-bst)) ; (... (n-sbst-fcn (ns-node-right a-ns-bst) a-num))]))])) ;
+
+; GIVEN: ns-insert ; Step 1 ; nsinsert : NSBST Number String -> NSBST ; consumes a valid number string BST, ; a number not already in the bst ; and a string ; produces the same bst with the number and string inserted in a new node
+
+(check-expect (ns-insert NSLEAF 1 "one") (make-ns-node 1 "one" NSLEAF NSLEAF)) (check-expect (ns-insert (make-ns-node 1 "one" NSLEAF NSLEAF) 2 "two") (make-ns-node 1 "one" NSLEAF (make-ns-node 2 "two" NSLEAF NSLEAF))) (check-expect (ns-insert (make-ns-node 1 "one" NSLEAF (make-ns-node 2 "two" NSLEAF NSLEAF)) -1 "-one") (make-ns-node 1 "one" (make-ns-node -1 "-one" NSLEAF NSLEAF) (make-ns-node 2 "two" NSLEAF NSLEAF)))
+
+; Template: ; (define (ns-insert a-ns-bst a-num a-string) ; (cond ; [(false? a-ns-bst) (... a-num a-string)] ; [(ns-node? a-ns-bst) ; (cond ; assume the keys will be unique ; [(< a-num (ns-node-key a-ns-bst)) ; (... (ns-insert (ns-node-left a-ns-bst) a-num a-string))] ; [(> a-num (n-snode-key a-nsbst)) ; (... (ns-insert (ns-node-right a-ns-bst) a-num a-string))]))])) a-nsbst) (... a-num a-string)] ; ; Inventory: since I'm adding a new node, make-nsnode might be important ; ; NSLEAF
+
+; Step 4 (define (ns-insert a-ns-bst a-num a-string) (cond [(false? a-ns-bst) (make-ns-node a-num a-string NSLEAF NSLEAF)] [(ns-node? a-ns-bst) (cond [(< a-num (ns-node-key a-ns-bst)) (make-ns-node (ns-node-key a-ns-bst) (ns-node-data a-ns-bst) (ns-insert (ns-node-left a-ns-bst) a-num a-string) (ns-node-right a-ns-bst))] [(> a-num (ns-node-key a-ns-bst)) (make-ns-node (ns-node-key a-ns-bst) (ns-node-data a-ns-bst) (ns-node-left a-ns-bst) (ns-insert (ns-node-right a-ns-bst) a-num a-string))])]))
+
+; YOU DO: ; The name and arity (number and order of parameters) ; of the ns-lookup must match the given stub below EXACTLY
+
+; Step 1 ; ns-lookup : NSBST Number -> String or #false ; consumes a number string binary search tree that respects the invariant ; and a number key to look for ; produces either the string stored at that key ; or #false
+
+;stub: ;(define (ns-lookup a-ns-bst a-num) #false)
+
+; Step 2 ; [YOUR EXAMPLE TESTS HERE] (check-expect (ns-lookup NSLEAF 2) #false) (check-expect (ns-lookup 1TO7NSBST 4) "four") (check-expect (ns-lookup 1TO7NSBST 6) "six") (check-expect (ns-lookup 1TO7NSBST 1) "one") (check-expect (ns-lookup 1TO7NSBST 10) #false)
+
+; Step 3 ; [YOUR TEMPLATE AND INVENTORY HERE] ; (define (ns-lookup a-ns-bst a-num) ; (cond ; [(false? a-ns-bst) #f] ; [(= a-num (ns-node-key a-ns-bst)) (ns-node-data a-ns-bst)] ; [(< a-num (ns-node-key a-ns-bst)) (ns-lookup (ns-node-left a-ns-bst) a-num)] ; [(> a-num (ns-node-key a-ns-bst)) (ns-lookup (ns-node-right a-ns-bst) a-num)]))
+
+; Step 4 ; don't forget to comment out the stub if you had ; it uncommented for checking your tests in Step 2
+
+; [YOUR IMPLEMENTATION HERE] (define (ns-lookup a-ns-bst a-num) (cond [(false? a-ns-bst) #f] [(= a-num (ns-node-key a-ns-bst)) (ns-node-data a-ns-bst)] [(< a-num (ns-node-key a-ns-bst)) (ns-lookup (ns-node-left a-ns-bst) a-num)] [(> a-num (ns-node-key a-ns-bst)) (ns-lookup (ns-node-right a-ns-bst) a-num)]))
+
+; Step 5 ; [YOUR EDGE CASE AND OTHER TESTS HERE]
+
+; ; Extra Credit (10 points) ; ; Given Step 1 and 2 below ; ; implement a function that checks if an NSBST ; ; value respects the invariant ; ; Hints: ; ; a node is "in the wrong spot" if it is greater than ; ; it's right child (if it's right child is a node) ; ; or if it is less than it's left child (if it's left child is a node) ; ; Hint: You may either make a helper function and pass the data along ; ; or you may inspect whether ; ; the left or right subchildren are ns-node?
+
+; Step 1 ; count-invalid : NSBST -> Number ; consumes a value made using the NSBST data definition ; produces the amount of nodes in the BST that are "in the wrong spot"
+
+; stub: ;(define (count-invalid a-ns-bst) 0)
+
+; Step 2 - Examples (check-expect (count-invalid NSLEAF) 0) (check-expect (count-invalid (make-ns-node 1 "one" NSLEAF NSLEAF)) 0) (check-expect (count-invalid (make-ns-node 2 "two" ; two is in the wrong spot (make-ns-node 3 "three" NSLEAF NSLEAF) NSLEAF)) 1) ; 1 node in the wrong spot, the node "two" (check-expect (count-invalid (make-ns-node 2 "two" (make-ns-node 3 "three" NSLEAF NSLEAF) (make-ns-node 1 "one" NSLEAF NSLEAF))) 1) ; still only the node "two" is in the wrong spot, 3 and 1 aren't to blame
+
+; [YOUR Steps 3 -> 5 HERE]
+
+(define (wrong-spot? a-ns-bst) (cond [(and (ns-node? a-ns-bst) (ns-node? (ns-node-right a-ns-bst))) (and (< (ns-node-key a-ns-bst) (ns-node-key (ns-node-right a-ns-bst))) (ns-node? (ns-node-right a-ns-bst)))] [(and (ns-node? a-ns-bst) (ns-node? (ns-node-left a-ns-bst))) (and (> (ns-node-key a-ns-bst) (ns-node-key (ns-node-left a-ns-bst))) (ns-node? (ns-node-left a-ns-bst)))] [else #f]))
+
+(define (count-invalid a-ns-bst) (if (ns-node? a-ns-bst) (+ (count-invalid (ns-node-left a-ns-bst)) (count-invalid (ns-node-right a-ns-bst)) (if (wrong-spot? a-ns-bst) 1 0)) 0))
+
+(check-expect (count-invalid NSLEAF) 0) (check-expect (count-invalid (make-ns-node 1 "one" NSLEAF NSLEAF)) 0)
