@@ -1,0 +1,76 @@
+; Lab 4
+; Learning Objective:
+;   Create Example Data for arbitrary arity trees to test with on the homework
+
+
+(define WPI_ID "ajli") ; replace with your wpi username (the text before the @ in your email)
+
+
+; Given is the data definition for a Mountain System which we will use on Individual ex 5.
+; Your task in this Lab is to define several pieces of example data.
+; Read the data definition and then follow the instructions are at the bottom of this file.
+
+(define-struct mt (name summit active-volcano? subranges))
+; A Mountain is a (make-mt String Number Boolean ListOfMountain)
+; interp.
+; - name is the mountain's name
+; - summit is how tall the mountain is in m
+; - active-volcano? is true if the mountain is an active volcano
+; - subranges are mountains that are part of this mountain's range
+
+; a ListOfMountain is one of
+; - empty
+; - (cons Mountain ListOfMountain)
+; interp. Sibling mountains in the same subrange
+
+; Examples:
+(define VILLA (make-mt "Villarrica" 2847 #t empty))
+(define OSO (make-mt "Osorno" 2652 #t empty))
+(define RUIZ (make-mt "Nevado del Ruiz" 5300 #t empty))
+(define CENT (make-mt "Cordillera Central" 4000 #t (list OSO)))
+(define OCC (make-mt "Cordillera Occidental" 3000 #t (list RUIZ)))
+(define ANDES (make-mt "Andes" 6962 #t (list OCC CENT VILLA)))
+
+; Template:
+; (define (mt-fcn a-mt)
+;   (...
+;    (mt-name a-mt)
+;    (mt-summit a-mt)
+;    (mt-active-volcano? a-mt)
+;    (lom-fcn (mt-subranges))))
+; 
+; (define (lom-fcn a-lom)
+;   (cond
+;     [(empty? a-lom) ...]
+;     [(cons? a-lom)
+;      (... (mt-fcn (first a-lom))
+;           (lom-fcn a-lom
+
+
+
+; Instructions - please follow these carefully for the autograder. Thank you
+; Uncomment and fill in the ... with a value of type Mountain that satisfies each comment
+; Note: These do not need to be real mountains/ranges
+; Note: You may make additional constants to use in these contants
+
+; Problem 1) Define a Mountain with no subranges
+(define LONELY (make-mt "Lonely Mountain" 6900 #f empty))
+
+; Problem 2) Define a Mountain with 2 subranges, each of which have no subranges
+(define TWO (make-mt "Two Mountain" 420 #f (list LONELY LONELY)))
+
+; Problem 3) Define a Mountain with 3 subranges, the first of with 1 subrange, the second with 2, and the third with 3.
+(define 123GO (make-mt "123Go Mountain" 69420 #f (list LONELY TWO (make-mt "Three Mountain" 8888 #f (list LONELY TWO)))))
+
+; Problem 4) Define a Mountain such that the system both:
+;            - has at least 8 named mountains in it
+;            - the mountains closest to the leaves are all volcanos
+(define OCTANO (make-mt "Octano Mountain" 7500 #f
+                        (list (make-mt "Volcano 1" 1000 #t empty)
+                                 (make-mt "Volcano 2" 2000 #t empty)
+                                    (make-mt "Volcano 3" 3000 #t empty)
+                                        (make-mt "Volcano 4" 4000 #t empty)
+                                          (make-mt "Volcano 5" 5000 #t empty)
+                                             (make-mt "Volcano 6" 6000 #t empty)
+                                                 (make-mt "Volcano 7" 7000 #t empty)
+                                                     (make-mt "Volcano 8" 8000 #t empty))))         
