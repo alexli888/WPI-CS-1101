@@ -1,0 +1,207 @@
+; Lab 5
+
+; In-class session:
+;   You should open with any questions about Design3
+(define WPI_ID "ajli")
+; Then, after those questions are done,
+; Problem 1 and 2 are intended to give you a head start
+; on Individual Ex 6.
+; 
+; ; Problem 1
+; ; Use build-list and int->string to define a constant
+; ; named STRINGS that has the ascii strings from 0 to 127
+
+
+; Strings def
+(define STRINGS
+  (map int->string (build-list 128 identity)))
+
+; Check expect
+(check-expect STRINGS
+              (list
+ "\u0000"
+ "\u0001"
+ "\u0002"
+ "\u0003"
+ "\u0004"
+ "\u0005"
+ "\u0006"
+ "\a"
+ "\b"
+ "\t"
+ "\n"
+ "\v"
+ "\f"
+ "\r"
+ "\u000E"
+ "\u000F"
+ "\u0010"
+ "\u0011"
+ "\u0012"
+ "\u0013"
+ "\u0014"
+ "\u0015"
+ "\u0016"
+ "\u0017"
+ "\u0018"
+ "\u0019"
+ "\u001A"
+ "\e"
+ "\u001C"
+ "\u001D"
+ "\u001E"
+ "\u001F"
+ " "
+ "!"
+ "\""
+ "#"
+ "$"
+ "%"
+ "&"
+ "'"
+ "("
+ ")"
+ "*"
+ "+"
+ ","
+ "-"
+ "."
+ "/"
+ "0"
+ "1"
+ "2"
+ "3"
+ "4"
+ "5"
+ "6"
+ "7"
+ "8"
+ "9"
+ ":"
+ ";"
+ "<"
+ "="
+ ">"
+ "?"
+ "@"
+ "A"
+ "B"
+ "C"
+ "D"
+ "E"
+ "F"
+ "G"
+ "H"
+ "I"
+ "J"
+ "K"
+ "L"
+ "M"
+ "N"
+ "O"
+ "P"
+ "Q"
+ "R"
+ "S"
+ "T"
+ "U"
+ "V"
+ "W"
+ "X"
+ "Y"
+ "Z"
+ "["
+ "\\"
+ "]"
+ "^"
+ "_"
+ "`"
+ "a"
+ "b"
+ "c"
+ "d"
+ "e"
+ "f"
+ "g"
+ "h"
+ "i"
+ "j"
+ "k"
+ "l"
+ "m"
+ "n"
+ "o"
+ "p"
+ "q"
+ "r"
+ "s"
+ "t"
+ "u"
+ "v"
+ "w"
+ "x"
+ "y"
+ "z"
+ "{"
+ "|"
+ "}"
+ "~"
+ "\u007F"))
+; Problem 2:
+
+; Given the data definition from Individual Ex 6
+; for a TTreeOf X
+; define the function andmap-tt
+
+(define-struct tnode (data one two three))
+; a (TTreeOf X) is one of:
+; - #false
+; - (make-tnode X (TTreeOf X) (TTreeOf X) (TTreeOf X))
+;   where X is any type
+; interp
+; - data is the data of this node
+; - one, two, and three are the subtrees
+; - #false is a leaf
+
+; Examples
+(define LEAF #false)
+(define 4TREE
+  (make-tnode 1
+              (make-tnode 2 LEAF LEAF LEAF)
+              (make-tnode 3 LEAF LEAF LEAF)
+              (make-tnode 4 LEAF LEAF LEAF)))
+
+; Template:
+; ; tt-fcn : (TTreeOf X) -> ...
+; (define (tt-fcn a-tt)
+;   (cond
+;     [(false? a-tt) ...]
+;     [(tnode? a-tt)
+;      (...
+;       (x-fcn (tnode-data a-tt))
+;       (tt-fcn (tnode-one a-tt))
+;       (tt-fcn (tnode-two a-tt))
+;       (tt-fcn (tnode-three a-tt)))]))
+
+
+; andmap-tt : (X -> Boolean) (TTreeOf X) -> Boolean
+; consumes a predicate and a trinary tree of data
+; produces true if every node in the tree passes the predicate
+
+;andmap-tt Function Body
+(define (andmap-tt p? a-tt)
+  (cond
+    [(false? a-tt) #true]
+    [(tnode? a-tt)
+     (and (p? (tnode-data a-tt))
+          (andmap-tt p? (tnode-one a-tt))
+          (andmap-tt p? (tnode-two a-tt))
+          (andmap-tt p? (tnode-three a-tt)))]))
+
+; Check-expects
+(check-expect
+ (andmap-tt number? 4TREE)
+ #true)
+(check-expect
+ (andmap-tt odd? 4TREE)
+ #false)
