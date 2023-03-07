@@ -1,0 +1,139 @@
+CS1101 Exercise 1 (define WPI_ID "ajli")
+
+; ; Templates: ; ; ; Number ; ; (define (num-fn a-num) ; ; (... a-num)) ; ; 2 Numbers ; ; (define (nums-fn one-num two-num) ; ; (... one-num two-num))
+
+; ; For Problems 01 - 04, we will be in the ; ; problem domain of shapes
+
+; ;Problem 01 - 4 points ; ; Given: Steps 1 through 3 of a function made using the HTdF recipe. ; ; Do: Finish Step 4 using the constant PI ; ; so that the tests from Step 2 pass ; ; You may skip Step 5 ; ; Please use our defined constant PI and not the BSL's primitive pi
+
+(define PI 3.14)
+
+; Step 1 - Signature, purpose, and stub: ; circle-area: Number -> Number ; consumes the radius of a circle as a strictly-positive number ; produces the area of the circle ; stub:(define (circle-area radius) 0)
+
+; Step 2 - examples as check-expects: (check-expect (circle-area 0) 0) (check-expect (circle-area 1) 3.14) (check-expect (circle-area 2) 12.56) (check-expect (circle-area 3.5) 38.465) (check-expect (circle-area 0.5) (* 0.5 0.5 3.14));0.785
+
+; Step 3 - template: ; (define (circle-area radius) (... radius)) ;
+
+; Step 4 - fill in function body: (define (circle-area radius) (*(sqr radius)PI))
+
+; Step 5 - Tests - may omit if you feel step 2 covers all reasonable input, or test more if you like ;;(skipped)
+
+; ;Problem 02 - 4 points ; ; Given: Steps 1 and 2 of a function made using the HtDF recipe ; ; Do: Steps 3, 4 and 5 ; ; For Step 3, you can copy and modify the templates defined above ; ; Full steps are in the resources module on Canvas under HtDF ; ; For Step 5, add tests until you believe all reasonable, classes of input ; ; are covered that weren't originally covered by Step 2.
+
+(define width 1) (define height 2) ; Step 1 - signature, purpose, stub ; rect-area: Number -> Number ; consumes two side lengths, a width and a height, as strictly-positive numbers ; produces the area of a corresponding rectangle ; stub:(define (rect-area width height) 0)
+
+; Step 2 - examples (check-expect (rect-area 0 0) 0) (check-expect (rect-area 1 1) 1) (check-expect (rect-area 1 2) 2) (check-expect (rect-area 2 2) 4) ; Step 3 - template and inventory ; (define(rect-area width height) (... width height))
+
+; Step 4 - function body (define(rect-area width height) ( * width height))
+
+; Step 5 - test and debug (check-expect (rect-area 21.3 21.7) 462.21) (check-expect (rect-area 13 27) 351) (check-expect (rect-area 200 100) 20000)
+
+; ;Problem 03 - 4 points ; ; Given: Steps 1 of a function made using the HtDF recipe ; ; Do: Steps 2, 3, 4 and 5 ; ; For Step 4, your code must call rect-area ; ; For Step 5, add tests until you believe all reasonable, classes of input ; ; are covered that weren't originally covered by Step 2.
+
+; Problem specification ; Consider the area of a square to be like the area of a rectangle ; except the width and height are the same.
+
+; Step 1 - signature, purpose, stub ; square-area: Number -> Number ; consumes a side length as a strictly positive number ; produces the area of a square with that side length ; stub:(define (square-area side-length) 0)
+
+; Step 2 - examples as check-expects (check-expect(square-area 0) 0) (check-expect(square-area 1) 1) (check-expect(square-area 2) 4) (check-expect(square-area 5) 25) (check-expect(square-area 10) 100)
+
+; Step 3 - template and inventory ; (define(square-area side-length) (... side-length side-length))
+
+; Step 4 - function body (define(square-area side-length) (rect-area side-length side-length))
+
+; Step 5 - test and debug (check-expect(square-area 15) 225) (check-expect(square-area 15.5) 240.25)
+
+; ;Problem 04 - 4 points ; ; Given: Steps 1 of a function made using the HtDF recipe ; ; Do: Steps 2, 3, 4 and 5 ; ; For Step 4, your code must call square-area ; ; For Step 5, add tests until you believe all reasonable, classes of input ; ; are covered that weren't originally covered by Step 2.
+
+; Problem specification ; Consider the area of a cube to be shape made ; out of 6 squares ; .
+
+; Step 1 - signature, purpose, stub ; cube-area Number -> Number ; consumes a side length as a strictly positive number ; produces the surface area of a cube with that side length ; stub:(define (cube-area side-length) 0)
+
+; Step 2 - examples as check-expects (check-expect(cube-area 0)0) (check-expect(cube-area 5)150) (check-expect(cube-area 10)600) (check-expect(cube-area 1)6)
+
+; Step 3 - template and inventory ; (define (cube-area side-length) ( ... 6 square-area width height))
+
+; Step 4 - function body (define (cube-area side-length) (*(square-area side-length) 6))
+
+; Step 5 - test and debug (check-expect(cube-area 2.5)37.5) (check-expect(cube-area 9)486)
+
+; ; For problems 05 - 07 ; ; The problem domain is culture and visitor statistics ; ; ; The National Museum of Modern and Contemporary Art ; ; in Gwacheon-si, South Korea offers virtual tours ; ; using a google page: https://artsandculture.google.com/partner/national-museum-of-modern-and-contemporary-art-korea?hl=en ;
+
+; ;Problem 05 - 4 points ; ; Given: ; ; - Steps 1 of a function made using the HtDF recipe ; ; - Data definitions to help describe the problem domain ; ; Do: Steps 2, 3, 4 and 5 ; ; Use the template given in the data definitions for Step 3
+
+; ; Data definitions ; ; ; Painters is a Natural ; ; interp. The amount of artists who have 3 painted works each in the museum at any one time ; ; ; Sculptors is a Natural ; ; interp. The amount of artists who have 2 physical works each in the museum at any one time ; ; ; Performers is a Natural ; ; interp. The amount of artists who have 1 stage performance planned for the museum at any one time ; ; ; Template: ; ; artists-fcn: Painters Sculptors Performers -> ... ; (define (artists-fcn painters sculptors performers) ; ... (... painters 3) ; (... sculptors 2) ; (... performers 1))
+
+;(define (artists-fcn painters sculptors performers))
+
+; Step 1 - signature, purpose, and stub ; works-displayed : Painters Sculptors Performers -> Number ; consumes a triple of artists (painters, sculptors, and performers) currently featured at the museum ; and produces the number of works the museum is currently displaying
+
+; stub:(define (works-displayed painters sculptors performers) 0)
+
+; Step 2 - examples (check-expect(works-displayed 1 1 1) 6) (check-expect(works-displayed 0 0 0) 0) ; Step 3 - template ; (define (works-displayed sculptors performers) ; ... (... painters 3) ; (... sculptors 2) ; (... performers 1)
+
+; Step 4 - function body (define (works-displayed painters sculptors performers) (+ (* painters 3) (* sculptors 2) (* performers 1)))
+
+; Step 5 ;;run and debug
+
+; ;Problem 06 - 4 points ; ; Given: ; ; - Constants that describe the needs of the museum ; ; - Steps 1 of a function made using the HtDF recipe ; ; - Data definitions to help describe the problem domain ; ; Do: HtDF Steps 2, 3, 4 and 5
+
+; Constants ;(define WORKS-PER-POP-STORY 5) ; The number of art works that make up a popular story ;(define WORKS-PER-EDU-STORY 15) ; The number of art works that make up an educational story
+
+; ; Data Definitions ; ; Stories is a Natural ; ; interp. The number of mini-tours that make up the virtual tour ; ; a Story can be either popular or educational ; ; and each kind has its own number of works ; ; template: ; ; stories-fcn: Stories Stories -> ... ; (define (stories-fcn pop edu) ; (... (... pop WORKS-PER-POP-STORY) ; (... edu WORKS-PER-EDU-STORY)))
+
+; Step 1 - signature, purpose, stub ; works-needed: Stories Stories -> Number ; consumes the number of popular and educational stories the museum wants to feature in a virtual tour ; produces the number of unique works needed to make that many stories (define pop 5) (define edu 15) ; stub: ;(define (works-needed pop edu) 0)
+
+; Step 2 (check-expect(works-needed 0 0)0) (check-expect(works-needed 1 1)20) (check-expect(works-needed 2 2)40) (check-expect(works-needed 12 19)345) (check-expect(works-needed 200 27)1405)
+
+; Step 3 ; (define works-needed ... pop edu)
+
+; Step 4 (define (works-needed pop edu) (+( * 5 pop)( * 15 edu))) ; Step 5 ;;run and debug
+
+; ;Problem 07 - 4 points ; ; Given: Steps 1 of a function made using the HtDF recipe ; ; Do: HtDF Steps 2, 3, 4 and 5 ; ; Your answer to Step 4 must call works-needed and works-displayed
+
+; Step 1 - signature, purpose, and stub ; enough-artists? : painters sculptors performers pop edu -> Boolean ; consumes the number of artists currently with work displayable on the virtual tour ; as well as the number of popular and educational stories the museum wants to display ; produces true if the museum will have enough works to make that many stories ; false if the museum will not have enough works ; stub: ;(define (enough-artists? painters sculptors performers pop edu) #false)
+
+; Step 2
+
+(check-expect(enough-artists? 1 2 3 4 5) #false)
+
+(check-expect(enough-artists? 5 4 3 2 1) #true)
+
+; Step 3 ; ; (define (enough-artists? painters sculptors performers pop edu) ; (... ; (artist-fcn painters sculptors preformers) ; (stories-fcn pop edu))) ; ;
+
+; Step 4 (define (enough-artists? painters sculptors performers pop edu) (if(> (works-needed pop edu) (works-displayed painters sculptors performers)) #false #true)) ; Step 5 ;;run and debug
+
+; ; For problem 08 the problem domain is ; ; buying a house (mortgages)
+
+; ;Problem 08 - 12 points ; ; Given: ; ; - Steps 1, 2, and 3 of a function total-cost-of-house made using the HtDF recipe ; ; - The following Algorithm: ; ; - The simple interest is product of the interest rate, the number of years of the loan, and the principal amount ; ; - The principal is the difference between the purchase price and the down payment ; ; - The total cost of the house is the sum of the purchase price, the interest, and the bank fees. ; ; Do: ; ; - HtDF Steps 4 and 5 for this function ; ; - HtDF Steps 1 through 5 for two helper functions simple-interest and principal ; ; * (they are used in the given Step 3 for total-cost-of-house) ; ; * you must determine the appropriate signatures from how they are used in the template ; ; * We provided stubs as part of the template you may use to make sure your implementation can be ; ; tested correctly ; ; * total-cost-of-house must call simple-interest and principal
+
+; constants (define RATE 0.05) ; 5% interest rate as a decimal (define TIME 30) ; the number of years of the loan (define FEES 4500) ; The dollar amount of the bank fees (a.k.a. closing costs)
+
+; Step 1 - signature, purpose, and stub ; total-cost-of-house: Natural Natural -> Number ; consumes a price of a house and the amount of money in a down payment ; produces the total cost of the house
+
+; stub:(define (total-cost-of-house price down-payment) 0)
+
+;Step 2 - examples ; (check-expect (total-cost-of-house 400000 100000) 854500); interest was $450,000
+
+(check-expect (total-cost-house 200000 60000) 474500) (check-expect (total-cost-house 500000 90000) 804500) ; Step 3 - template and inventory ; (define (total-cost-of-house purchase-price down-payment) ; ... (simple-interest INTEREST-RATE LIFE-OF-LOAN (principal purchase-price down-payment)) ; purchase-price ; FEES) ; stub: (define (interest rate years amount) 0) ; stub: (define (principal purchase-price down-payment)
+
+; Step 4 (define (total-cost-house purchase-price down-payment) (+ purchase-price down-payment (interest RATE 140000 TIME) FSEES)) ; Step 5 ;;run and debug
+
+; Step 1 ; interest: ... ; interest: num num num -> num ;stub:(define (interest rate years amount) 0)
+
+; Step 2 (check-expect (interest RATE 0 TIME) 0) (check-expect (interest RATE 140000 TIME) 210000) (check-expect (interest RATE 410000 TIME) 615000)
+
+; Step 3 ; (define (interest rate principal time) ; (... rate principal time))
+
+; Step 4 (define (interest rate principal time) (* rate principal time))
+
+; Step 5 ;;run and debug
+
+; Step 1 ; principal: num num -> num ;stub:(define (principal price down-payment) 0)
+
+; Step 2 (check-expect (principal 0 0) 0) (check-expect (principal 200000 60000) 140000) (check-expect (principal 500000 90000) 410000)
+
+; Step 3 ; (define (principal purchase-price down-payment) ; (... purchase-price down-payment))
+
+; Step 4 (define (principal purchase-price down-payment) (- purchase-price down-payment))
+
+; Step 5 ;;run and debug
