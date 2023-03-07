@@ -1,0 +1,143 @@
+; ;Lab 1 - That's me! (in code)
+
+(require 2htdp/image)
+
+(define WPI_ID "ajli")         ; fill-in the "" with your WPI id (the text before the @ in your @wpi.edu email)
+
+;; Problem 2: Now that you have Racket installed, hit run in the upper right hand corner.
+;;            You should see, in the interactions window below
+;;            a picture of francesca with her name superimposed
+;;
+;;            You may not understand all of the code or vocabulary here, but this is just to be a runnable example showing off
+;;            several topics we will go into soon
+;;            You may benefit from looking at the Course Calendar and seeing if any of the vocabulary appears in the topics or video lecture titles
+;;            to know when we plan to cover them
+
+
+; ; Constants
+
+
+(define FRANCESCA_IMG .)
+(define FRANCESCA_NAME "The Dutchess Francesca")
+
+; ; Helper Functions
+
+
+; shadow: String Number Color -> Image
+; consumes text, a font size, and a color
+; produces an image with the text imposed on a skewed, black background of itself
+; (like a drop shadow)
+(check-expect (shadow "red" 12 "green") .)
+(define (shadow a-string font-size color)
+  (overlay/offset
+    (text a-string font-size color)
+    1 1
+    (text a-string font-size "black")))
+
+; ; Example
+
+(overlay/offset
+ (shadow FRANCESCA_NAME 24 "purple")
+ 0 -100
+ FRANCESCA_IMG)
+
+
+
+
+;; Problem 3 - Uncomment and fill in the ...s with values of the appropriate type
+;;             
+
+;; 3a uncomment the following constant and replace the ... with an image that is small, square dimensions, and represents you
+;;    (A picture of you is prefered as I am going to use these to learn everyone's names and faces,
+;;    but you can use a picture of something you like instead if you do not want to use a picture of yourself)
+
+; (define ME_IMG ...) ; You can either copy-paste an image or use the Insert menu from the toolbar 
+
+(define ME_IMG. )
+
+;; 3b uncomment the following constant and replace the ... with how you like to be called
+;;    (Either your first name, a nick name, etc.)
+; (define EX_ME "his")
+; (define ME ...)
+
+(define ME "Alex")
+
+;; 3c uncomment the following constant and replace the ... with what possessive adjective you use
+;;    (so that it makes sense in the comic below)
+
+; (define EX_PADJ "his")
+; (define ME_PADJ ...)
+
+(define ME_PADJ "his")
+
+;; 3c replace the ...s with numbers to finish the emoji comic
+;; Steps:
+;;  1) Copy the code out of the comment
+;;  2) Replace all the ...s with 0s so the code runs without error
+;;  3) Look at the result
+;;  4) Guess and check different numbers instead of 0 until the center panel looks like a thought bubble
+
+; (beside  (overlay/offset
+;            (text (string-append "What's " ME_PADJ " name?") 24 "black")
+;            0 50
+;            (overlay/offset
+;              (text "🤔" 84 "black")
+;              -25 -50
+;              (frame (square 200 200 "white"))))
+;         (frame
+;          (overlay
+;           (overlay/offset
+;              (circle 10 "outline" "black")
+;              0 0 ; REPLACE WITH 2 NUMBERS
+;                (overlay/offset
+;                  (circle 25 "outline" "black")
+;                  0 0 ; REPLACE WITH 2 NUMBERS
+;                   (overlay
+;                     (ellipse 100 75 "outline" "black")
+;                     (scale 0.25 ME_IMG))))
+;            (square 200 200 "white")))
+;         (overlay/offset
+;            (above
+;              (text "Oh right, " 24 "black")
+;              (text (string-append ME_NAME "!") 24 "black"))
+;            0 50
+;            (overlay/offset
+;              (text "😀👆" 84 "black")
+;              -25 -50
+;              (frame (square 200 200 "white")))))
+
+
+(define FRANCESCA_EMOJI_COMIC .)
+
+;;3 C Actual Work
+(require 2htdp/image)
+
+(beside  (overlay/offset
+           (text (string-append "What's " ME_PADJ " name?") 24 "black")
+           0 50
+           (overlay/offset
+             (text "🤔" 84 "black")
+             -25 -50
+             (frame (square 200 200 "white"))))
+        (frame
+         (overlay
+          (overlay/offset
+             (circle 10 "outline" "black")
+            80 -80 ; REPLACE WITH 2 NUMBERS
+               (overlay/offset
+                 (circle 25 "outline" "black")
+                 50 -50 ; REPLACE WITH 2 NUMBERS
+                  (overlay
+                    (ellipse 100 75 "outline" "black")
+                    (scale 0.25 ME_IMG))))
+           (square 200 200 "white")))
+        (overlay/offset
+           (above
+             (text "Oh right, " 24 "black")
+             (text (string-append ME "!") 24 "black"))
+           0 50
+           (overlay/offset
+             (text "😀👆" 84 "black")
+             -25 -50
+             (frame (square 200 200 "white")))))
+.
