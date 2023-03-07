@@ -1,0 +1,59 @@
+CS1101 Exercise 5
+
+; Individual Exercises 5 ; Learning Objective: ; Implement functions using arbitrary arity trees
+
+(define WPI_ID "ajli") ; replace with your wpi username (the text before the @ in your email)
+
+(define-struct mt (name summit active-volcano? subranges)) ; A Mountain is a (make-mt String Number Boolean ListOfMountain) ; interp. ; - name is the mountain's name ; - summit is how tall the mountain is in m ; - active-volcano? is true if the mountain is an active volcano ; - subranges are mountains that are part of this mountain's range
+
+; a ListOfMountain is one of ; - empty ; - (cons Mountain ListOfMountain) ; interp. Sibling mountains in the same subrange
+
+; Examples: (define VILLA (make-mt "Villarrica" 2847 #t empty)) (define OSO (make-mt "Osorno" 2652 #t empty)) (define RUIZ (make-mt "Nevado del Ruiz" 5300 #t empty)) (define CENT (make-mt "Cordillera Central" 4000 #t (list OSO))) (define OCC (make-mt "Cordillera Occidental" 3000 #t (list RUIZ))) (define ANDES (make-mt "Andes" 6962 #t (list OCC CENT VILLA)))
+
+; Template: ; (define (mt-fcn a-mt) ; (... ; (mt-name a-mt) ; (mt-summit a-mt) ; (mt-active-volcano? a-mt) ; (lom-fcn (mt-subranges a-mt)))) ; ; (define (lom-fcn a-lom) ; (cond ; [(empty? a-lom) ...] ; [(cons? a-lom) ; (... (mt-fcn (first a-lom)) ; (lom-fcn (rest a-lom)))]))
+
+; ; Problem 1 - 15 points ; ; Design and implement a function tall-mountains ; ; which produces a list of mountains with heights greater than 3500m inclusive ; ; Note: It does not matter in what order you produce the names (you may treat the output like a set of names)
+
+; tall-mountains : Mountain -> ListOfString ; consumes a mountain (system) as an AATree ; produces a list of the names of the mountain/submountains that are greater than 3500m inclusive
+
+; stub: comment out before doing step 4 ;(define (tall-mountains a-mt) empty)
+
+; Step 2 (check-expect (tall-mountains ANDES) (list "Andes" "Nevado del Ruiz" "Cordillera Central"))
+
+; Step 3 ; [YOUR TEMPLATE HERE] ; (define (tall-mountains a-mt) ; (cond ; [(>= (mt-summit a-mt) 3500) ; (cons (mt-name a-mt) ; (helper (mt-subranges a-mt)))] ; [else (helper (mt-subranges a-mt))])) ; ; (define (helper a-lom) ; (cond ; [(empty? a-lom) empty] ; [(cons? a-lom) ... (append (tall-mountains (first a-lom)) ... (helper (rest a-lom)))]))
+
+; Step 4
+
+(define (tall-mountains a-mt) (if (>= (mt-summit a-mt) 3500) (cons (mt-name a-mt) (helper (mt-subranges a-mt))) (helper (mt-subranges a-mt))))
+
+(define (helper a-lom) (if (empty? a-lom) empty (append (tall-mountains (first a-lom)) (helper (rest a-lom)))))
+
+; Step 5 ; [YOUR TESTS HERE] (check-expect (tall-mountains CENT) (list "Cordillera Central"))
+
+; ; Problem 2 - 15 points ; ; Design and implement a function shortest-volcano ; ; which produces the the shortest volcano in the Mountain system ; ; Hint: It may be useful to make a helper function ; ; that takes two mountains and produces the smaller volcano of the two (or #false)
+
+; shortest-volcano : Mountain -> Mountain or #false ; consumes a mountain system as an AATree ; produces the active-volcano with the smallest summit ; produces #false if there are no volcanos ; produces either in the case of a tie
+
+; stub : Comment out before doing step 4 (define (shortest-volcano a-mt) "")
+
+; Step 2
+
+(check-expect (shortest-volcano ANDES) (make-mt "Osorno" 2652 true empty))
+
+; Step 3 ; [YOUR TEMPLATE HERE]
+
+; Step 4 ; [YOUR CODE HERE]
+
+; Step 5 ; [YOUR TESTS HERE]
+
+; ; Problem 3 - 10 points ; ; Design and implement a function plate-tectonics ; ; which consumes a mountain and an height m ; ; and produces the mountain raised by that height
+
+; plate-tectonics : Mountain Number -> Mountain ; consumes a mountain system and a height (height can be negative) ; produces the same mountain system raised by that height (a negative summit height is considered below sealevel)
+
+; stub : comment out before doing step 4 (define (plate-tectonics a-mt a-height) a-mt)
+
+; Step 2 ; [Your Tests Here]
+
+; Step 3 ; [YOUR TEMPLATE HERE]
+
+; Step 4 ; [YOUR CODE HERE]
